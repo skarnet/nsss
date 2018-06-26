@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss: the nsss library interface</title>
+    <meta name="Description" content="nsss: the nsss library interface" />
+    <meta name="Keywords" content="NSS pwd group shadow library libnsss skarnet" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="../">nsss</a><br />
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> The <tt>nsss</tt> library interface </h1>
+
+<h2> General information </h2>
+
+<p>
+ <tt>libnsss</tt> is a client library meant to be used by client
+programs needing utmp functionality. It interacts with various
+server-side daemons such as
+<a href="../nsssd-unix.html">nsssd-unix</a>.
+</p>
+
+<p>
+ Application programs can use it directly, but most existing programs
+simply use the standard
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pwd.h.html">pwd.h</a>,
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/grp.h.html">grp.h</a> or
+<a href="http://man7.org/linux/man-pages/man3/getspnam.3.html">shadow.h</a>
+interfaces, which in nsss are implemented as a series of thin wrappers
+around the nsss library.
+</p>
+
+<h2> Compiling </h2>
+
+<ul>
+ <li> Make sure the nsss headers, as well as the skalibs headers,
+are visible in your header search path. </li>
+ <li> Use <tt>#include &lt;nsss/nsss.h&gt;</tt> </li>
+ <li> To use the standard <tt>pwd.h</tt> interface, you can
+just <tt>#include &lt;pwd.h&gt;</tt>, which will work as long
+as the <tt>nsss/pwd.h</tt> header is accessible in your header
+search path. </li>
+ <li> Same thing for <tt>grp.h</tt> and <tt>shadow.h</tt>. </li>
+</ul>
+
+<h2> Linking </h2>
+
+<ul>
+ <li> Make sure the nsss library, as well as the skalibs library,
+are visible in your library search path. </li>
+ <li> Link against <tt>-lnsss</tt>, <tt>-lskarnet</tt>, </li>
+<tt>`cat $SYSDEPS/socket.lib`</tt> and
+<tt>`cat $SYSDEPS/tainnow.lib`</tt>, $SYSDEPS being your skalibs
+sysdeps directory. </li>
+</ul>
+
+<h2> Programming </h2>
+
+<p>
+ The <tt>nsss/nsss.h</tt> header is actually a collection of headers:
+</p>
+
+<ul>
+ <li> <tt>nsss/nsss-unix.h</tt> implements basic access to the
+<tt>/etc/passwd</tt>, <tt>/etc/group</tt> and <tt>/etc/shadow</tt>
+database. </li>
+ <li> <tt>nsss/nsss-switch.h</tt> implements connection via a Unix
+domain socket to a listening <tt>nsssd</tt> daemon, implementing an
+authentication backend based on what implementation of
+the daemon is listening. </li>
+ <li> <tt>nsss/nsss-all.h</tt> implements a safe policy: first a
+connection via <tt>nsss-switch</tt> is attempted, and if no daemon
+is listening, the safe <tt>nsss-unix</tt> backend is used. </li>
+</ul>
+
+<p>
+ By default, the <tt>getpwnam()</tt> et al. functions are aliased
+to their <tt>nsss-all</tt> implementations. You can disable the
+<tt>nsss-unix</tt> fallback by compiling with the NSSS_DISABLE_UNIX
+macro defined (-DNSSS_DISABLE_UNIX). Or you can disable any
+attempt to connect to a daemon by compiling with the
+NSSS_DISABLE_SWITCH macro defined (-DNSSS_DISABLE_SWITCH).
+</p>
+
+<p>
+ (To be completed.)
+</p>
+
+</body>
+</html>

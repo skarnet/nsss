@@ -1,0 +1,5 @@
+#!/bin/execlineb -P
+
+s6-setuidgid nssslog
+exec -c
+s6-log t /var/log/nsssd

@@ -1,0 +1,163 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss - a secure NSS-like implementation for small libcs</title>
+    <meta name="Description" content="utmps - a secure NSS-like implementation for small libcs" />
+    <meta name="Keywords" content="nsss NSS musl libc unix passwd grp shadow laurent bercot skarnet" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> nsss </h1>
+
+<h2> What is it&nbsp;? </h2>
+
+<p>
+ nsss is an implementation of a subset of the <tt>pwd.h</tt>,
+<tt>group.h</tt> and <tt>shadow.h</tt> family of functions,
+performing user database access on Unix systems.
+</p>
+
+<p>
+ Usually, user database access via <tt>getpwnam()</tt> and similar
+function is provided by the system's libc. However, not all libcs implement
+a configurable backend for the user/group database. For instance the
+<a href="https://musl-libc.org/">musl</a> libc, on Linux, only supports
+the standard <tt>/etc/passwd</tt> mechanism; it also supports the
+<tt>nscd</tt> protocol but this is not quite enough to implement the
+full set of database access functions with certain backends (such as a
+LDAP server).
+</p>
+
+<p>
+ <tt>nsss</tt> is a secure implementation of configurable user/group/shadow
+database access, providing <tt>getpwnam()</tt> et al. functionality
+by communicating over a Unix domain socket with a daemon; the daemon
+can perform lookups in any database it chooses.
+</p>
+
+<p>
+ Unlike NSS, <tt>nsss</tt> does not perform dynamic module
+loading, only adds a small footprint to the application's binary,
+and does not add any complex decision engine into the client's address
+space. Applications can be statically linked against the <tt>nsss</tt>
+library, and still benefit from configurable user database access
+functions.
+</p>
+
+<hr />
+
+<ul>
+ <li> <a href="overview.html">An overview of nsss</a> </li>
+</ul>
+
+<hr />
+
+<h2> Installation </h2>
+
+<h3> Requirements </h3>
+
+<ul>
+ <li> A POSIX-compliant system with a standard C development environment </li>
+ <li> GNU make, version 3.81 or later </li>
+ <li> <a href="//skarnet.org/software/skalibs/">skalibs</a> version
+2.6.5.0 or later. It's a build-time requirement. It's also a run-time
+requirement if you link against the shared version of the skalibs
+library. </li>
+</ul>
+
+<h3> Licensing </h3>
+
+<p>
+ nsss is free software. It is available under the
+<a href="http://opensource.org/licenses/ISC">ISC license</a>.
+</p>
+
+<h3> Download </h3>
+
+<ul>
+ <li> The current released version of nsss is <a href="nsss-0.0.1.0.tar.gz">0.0.1.0</a>. </li>
+ <li> Alternatively, you can checkout a copy of the
+<a href="//git.skarnet.org/cgi-bin/cgit.cgi/nsss/">nsss
+git repository</a>:
+<pre> git clone git://git.skarnet.org/nsss </pre> </li>
+ <li> There's also a
+<a href="https://github.com/skarnet/nsss">GitHub mirror</a>
+of the nsss git repository. </li>
+</ul>
+
+<h3> Compilation </h3>
+
+<ul>
+ <li> See the enclosed INSTALL file for installation details. </li>
+</ul>
+
+<h3> Upgrade notes </h3>
+
+<ul>
+ <li> <a href="upgrade.html">This page</a> lists the differences to be aware of between
+the previous versions of nsss and the current one. </li>
+</ul>
+
+<hr />
+
+<h2> Reference </h2>
+
+<h3> Commands </h3>
+
+<ul>
+</ul>
+
+<h3> Libraries </h3>
+
+<ul>
+ <li> <a href="libnsss/">The <tt>nsss</tt> library interface</a> </li>
+ <li> The following primitives are also implemented:
+  <ul>
+   <li> endpwent() </li>
+   <li> setpwent() </li>
+   <li> getpwent() </li>
+   <li> getpwent_r() </li>
+   <li> getpwuid() </li>
+   <li> getpwuid_r() </li>
+   <li> getpwnam() </li>
+   <li> getpwnam_r() </li>
+   <li> endgrent() </li>
+   <li> setgrent() </li>
+   <li> getgrent() </li>
+   <li> getgrent_r() </li>
+   <li> getgrgid() </li>
+   <li> getgrgid_r() </li>
+   <li> getgrnam() </li>
+   <li> getgrnam_r() </li>
+   <li> endspent() </li>
+   <li> setspent() </li>
+   <li> getspent() </li>
+   <li> getspent_r() </li>
+   <li> getspnam() </li>
+   <li> getspnam_r() </li>
+  </ul> </li>
+</ul>
+
+<hr />
+
+<a name="related">
+<h2> Related resources </h2>
+</a>
+
+<h3> nsss discussion </h3>
+
+<ul>
+ <li> <tt>nsss</tt> is discussed on the
+<a href="//skarnet.org/lists.html#skaware">skaware</a> mailing-list. </li>
+</ul>
+
+</body>
+</html>

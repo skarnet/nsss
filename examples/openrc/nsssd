@@ -1,0 +1,6 @@
+#!/sbin/openrc-run
+
+name="nsssd"
+command="s6-ipcserver -- /run/service/nsssd/s nsssd-unix"
+pidfile="/run/service/nsssd/nsssd.pid"
+start_stop_daemon_args="-b -m -c nsssd -d /run/service/nsssd"

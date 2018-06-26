@@ -1,0 +1,3 @@
+nsssd_main.o
+nsssd_convert.o
+-lskarnet

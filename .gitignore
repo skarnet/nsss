@@ -1,0 +1,10 @@
+*.o
+*.lo
+/config.mak
+/src/include/nsss/config.h
+/libnsss.a.xyzzy
+/libnsss.so.xyzzy
+/libnsssd.a.xyzzy
+/libnsssd.so.xyzzy
+/nsssd-unix
+/nsssd-nslcd
