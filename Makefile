@@ -87,7 +87,7 @@ install-dynlib: $(SHARED_LIBS:lib%.so.xyzzy=$(DESTDIR)$(dynlibdir)/lib%.so)
 install-libexec: $(LIBEXEC_TARGETS:%=$(DESTDIR)$(libexecdir)/%)
 install-bin: $(BIN_TARGETS:%=$(DESTDIR)$(bindir)/%)
 install-lib: $(STATIC_LIBS:lib%.a.xyzzy=$(DESTDIR)$(libdir)/lib%.a)
-install-include: $(ALL_INCLUDES:src/include/$(package)/%.h=$(DESTDIR)$(includedir)/$(package)/%.h) $(DESTDIR)$(includedir)/utmpx.h
+install-include: $(ALL_INCLUDES:src/include/$(package)/%.h=$(DESTDIR)$(includedir)/$(package)/%.h) $(DESTDIR)$(includedir)/pwd.h $(DESTDIR)$(includedir)/grp.h $(DESTDIR)$(includedir)/shadow.h
 install-data: $(ALL_DATA:src/etc/%=$(DESTDIR)$(datadir)/%)
 
 ifneq ($(exthome),)
@@ -130,7 +130,13 @@ $(DESTDIR)$(libdir)/lib%.a: lib%.a.xyzzy
 $(DESTDIR)$(includedir)/$(package)/%.h: src/include/$(package)/%.h
 	exec $(INSTALL) -D -m 644 $< $@
 
-$(DESTDIR)$(includedir)/utmpx.h: src/include/utmpx.h
+$(DESTDIR)$(includedir)/pwd.h: src/include/pwd.h
+	exec $(INSTALL) -D -m 644 $< $@
+
+$(DESTDIR)$(includedir)/grp.h: src/include/grp.h
+	exec $(INSTALL) -D -m 644 $< $@
+
+$(DESTDIR)$(includedir)/shadow.h: src/include/shadow.h
 	exec $(INSTALL) -D -m 644 $< $@
 
 %.o: %.c
