@@ -2,12 +2,15 @@
 
 #include <errno.h>
 #include <skalibs/buffer.h>
+#include <skalibs/strerr2.h>
 #include <skalibs/lolstdio.h>
-#include <nsss/pwd.h>
+#include <nsss/pwd-def.h>
+#include <nsss/grp-def.h>
 #include <nsss/nsss-all.h>
 
 int main (void)
 {
+  PROG = "test-all-fallback" ;
   for (;;)
   {
     struct passwd *pw ;
@@ -19,8 +22,12 @@ int main (void)
   if (errno)
     strerr_diefu1sys(111, "nsss_all_getpwent") ;
   nsss_all_endpwent() ;
-  buffer_flush(buffer_1) ;
   lolprintf("\n") ;
+
+  {
+    struct passwd *pw = nsss_all_getpwnam("root") ;
+    lolprintf("%u\n\n", (unsigned int)pw->pw_uid) ;
+  }
 
   for (;;)
   {

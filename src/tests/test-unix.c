@@ -2,12 +2,15 @@
 
 #include <errno.h>
 #include <skalibs/buffer.h>
+#include <skalibs/strerr2.h>
 #include <skalibs/lolstdio.h>
-#include <nsss/pwd.h>
+#include <nsss/pwd-def.h>
+#include <nsss/grp-def.h>
 #include <nsss/nsss-unix.h>
 
 int main (void)
 {
+  PROG = "test-unix" ;
   for (;;)
   {
     struct passwd *pw ;
@@ -19,8 +22,12 @@ int main (void)
   if (errno)
     strerr_diefu1sys(111, "nsss_unix_getpwent") ;
   nsss_unix_endpwent() ;
-  buffer_flush(buffer_1) ;
   lolprintf("\n") ;
+
+  {
+    struct passwd *pw = nsss_unix_getpwnam("root") ;
+    lolprintf("%u\n\n", (unsigned int)pw->pw_uid) ;
+  }
 
   for (;;)
   {

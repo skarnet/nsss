@@ -1,5 +1,6 @@
 /* ISC license. */
 
+
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
@@ -33,7 +34,7 @@ int nsss_switch_grp_read (buffer *b, struct group *gr, stralloc *sa, genalloc *g
   uint32_unpack_big(buf, &x) ; grtmp.gr_gid = x ;
   uint32_unpack_big(buf + 4, &total) ;
   uint32_unpack_big(buf + 8, &n) ;
-  if (n >= 0x30000000u) return (errno = EPROTO, 0) ;
+  if (total < 2 || n >= 0x30000000u) return (errno = EPROTO, 0) ;
   if (!stralloc_readyplus(sa, total)) return 0 ;
   if (!genalloc_readyplus(char *, ga, n+1)) return 0 ;
   if (!buffer_timed_get(b, sa->s + sa->len, total, deadline, stamp)) return 0 ;

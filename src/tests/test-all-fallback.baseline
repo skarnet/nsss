@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+cat /etc/passwd
+echo
+id -u root
+echo
+cat /etc/group

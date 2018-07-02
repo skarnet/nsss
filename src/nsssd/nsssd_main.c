@@ -92,8 +92,8 @@ static inline void print_gr (struct group const *gr)
   if (len > 0xffffffffu || n > 0x30000000u) { answer(ENAMETOOLONG) ; return ; }
   put1("", 1) ;
   uint32_pack_big(pack, gr->gr_gid) ;
-  uint32_pack_big(pack, len) ;
-  uint32_pack_big(pack, n) ;
+  uint32_pack_big(pack + 4, len) ;
+  uint32_pack_big(pack + 8, n) ;
   put1(pack, 12) ;
   put1(gr->gr_name, namelen) ;
   put1(gr->gr_passwd, passwdlen) ;

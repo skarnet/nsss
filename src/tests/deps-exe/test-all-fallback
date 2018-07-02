@@ -1,0 +1,4 @@
+${LIBNSSS}
+-lskarnet
+${SOCKET_LIB}
+${TAINNOW_LIB}
