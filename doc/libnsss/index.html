@@ -21,23 +21,100 @@
 <h2> General information </h2>
 
 <p>
- <tt>libnsss</tt> is a client library meant to be used by client
-programs needing utmp functionality. It interacts with various
-server-side daemons such as
-<a href="../nsssd-unix.html">nsssd-unix</a>.
+ <tt>libnsss</tt> is the generic name for the nsss client library.
+This library is made of several parts:
+</p>
+
+<ul>
+ <li> <a href="nsss-unix.html">nsss-unix</a>: this is a set of
+functions to access the <tt>/etc/passwd</tt>, <tt>/etc/group</tt>
+and <tt>/etc/shadow</tt> files. </li>
+ <li> <a href="nsss-switch.html">nsss-switch</a>: this is a set of
+functions to connect to a <em>nsssd-service</em> and interact with
+various server-side daemons such as
+<a href="../nsssd-unix.html">nsssd-unix</a> or
+<a href="../nsssd-nslcd.html">nsssd-nslcd</a>. </li>
+ <li> nsss-all: this is a set of
+functions that try connecting to a nsssd service first, and fall
+back to the <a href="nsss-unix.html">nsss-unix</a> implementation
+if the connection fails (no nsssd service is running). </li>
 </p>
 
 <p>
- Application programs can use it directly, but most existing programs
-simply use the standard
-<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pwd.h.html">pwd.h</a>,
-<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/grp.h.html">grp.h</a> or
-<a href="http://man7.org/linux/man-pages/man3/getspnam.3.html">shadow.h</a>
-interfaces, which in nsss are implemented as a series of thin wrappers
-around the nsss library.
+ Both <a href="nsss-unix.html">nsss-unix</a> and
+<a href="nsss-switch.html">nsss-switch</a> are made of two parts:
+</p>
+
+<ul>
+ <li> An internal, clean API, that applications can use directly
+if they include the <tt>nsss/nsss.h</tt> header, or the relevant
+<tt>nsss/nsss-unix.h</tt> or <tt>nsss/nsss-switch.h</tt> header. </li>
+ <li> As a series of thin wrappers around the internal API, an
+implementation of the standard following functions:
+  <ul>
+   <li> endpwent() </li>
+   <li> setpwent() </li>
+   <li> getpwent() </li>
+   <li> getpwent_r() </li>
+   <li> getpwuid() </li>
+   <li> getpwuid_r() </li>
+   <li> getpwnam() </li>
+   <li> getpwnam_r() </li>
+   <li> endgrent() </li>
+   <li> setgrent() </li>
+   <li> getgrent() </li>
+   <li> getgrent_r() </li>
+   <li> getgrgid() </li>
+   <li> getgrgid_r() </li>
+   <li> getgrnam() </li>
+   <li> getgrnam_r() </li>
+   <li> endspent() </li>
+   <li> setspent() </li>
+   <li> getspent() </li>
+   <li> getspent_r() </li>
+   <li> getspnam() </li>
+   <li> getspnam_r() </li>
+  </ul> </li>
+ The functions are prefixed with <tt>nsss_unix_</tt> or
+<tt>nsss_switch_</tt>. For instance, <tt>nsss_unix_getpwnam()</tt>
+is the implementation of <tt>getpwnam()</tt> that uses the
+<tt>/etc/passwd</tt> backend. </li>
+</ul>
+
+<p>
+ nsss-all does not have an internal API. It only contains the
+implementation of the above standard functions, as
+<tt>nsss_all_getpwnam()</tt> and similar.
 </p>
 
 <h2> Compiling </h2>
+
+<p>
+ Application programs can use the internal API directly, or
+the prefixed <tt>nsss_</tt> functions directly. Most programs,
+however, will simply use the standard
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pwd.h.html">pwd.h</a>,
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/grp.h.html">grp.h</a> or
+<a href="http://man7.org/linux/man-pages/man3/getspnam.3.html">shadow.h</a>
+interfaces. nsss provides a version of these standard headers: if an
+application is built with these headers, then <tt>getpwnam()</tt>
+will automatically be aliased to <tt>nsss_all_getpwnam()</tt>, and
+the other functions will be aliased similarly.
+</p>
+
+<p>
+ If the NSSS_DISABLE_SWITCH macro is defined before inclusion of the
+nsss headers, then <tt>getpwnam()</tt> will be aliased to
+<tt>nsss_unix_getpwnam()</tt> instead, and the other functions will
+follow the same pattern. If, instead, the NSSS_DISABLE_UNIX macro
+is defined before inclusion of the nsss headers, then <tt>getpwnam()</tt>
+will be aliased to <tt>nsss_switch_getpwnam()</tt>, and the other
+functions will follow the same pattern.
+</p>
+
+<p>
+ So, the proper steps to compile an application with libnsss are:
+</p>
 
 <ul>
  <li> Make sure the nsss headers, as well as the skalibs headers,
@@ -48,6 +125,10 @@ just <tt>#include &lt;pwd.h&gt;</tt>, which will work as long
 as the <tt>nsss/pwd.h</tt> header is accessible in your header
 search path. </li>
  <li> Same thing for <tt>grp.h</tt> and <tt>shadow.h</tt>. </li>
+ <li> If don't want to use the nsss-all implementation of
+"try nsss-switch and fall back to nsss-unix if it fails", then
+compile with -DNSSS_DISABLE_SWITCH or -DNSSS_DISABLE_UNIX as
+desired. </li>
 </ul>
 
 <h2> Linking </h2>
@@ -63,35 +144,16 @@ sysdeps directory. </li>
 
 <h2> Programming </h2>
 
-<p>
- The <tt>nsss/nsss.h</tt> header is actually a collection of headers:
-</p>
-
 <ul>
- <li> <tt>nsss/nsss-unix.h</tt> implements basic access to the
-<tt>/etc/passwd</tt>, <tt>/etc/group</tt> and <tt>/etc/shadow</tt>
-database. </li>
- <li> <tt>nsss/nsss-switch.h</tt> implements connection via a Unix
-domain socket to a listening <tt>nsssd</tt> daemon, implementing an
-authentication backend based on what implementation of
-the daemon is listening. </li>
- <li> <tt>nsss/nsss-all.h</tt> implements a safe policy: first a
-connection via <tt>nsss-switch</tt> is attempted, and if no daemon
-is listening, the safe <tt>nsss-unix</tt> backend is used. </li>
+ <li> nsss-all, nsss-switch and nsss-unix implement the
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getpwnam.html">POSIX
+layer</a> of user database access, plus a few
+<a href="http://man7.org/linux/man-pages/man3/getpwent_r.3.html">GNU extensions</a>. </li>
+ <li> The <a href="nsss-unix.html">nsss/nsss-unix.h</a> header
+can be used to access the internal nsss-unix API. </li>
+ <li> The <a href="nsss-switch.html">nsss/nsss-switch.h</a> header
+can be used to access the internal nsss-switch API. </li>
 </ul>
-
-<p>
- By default, the <tt>getpwnam()</tt> et al. functions are aliased
-to their <tt>nsss-all</tt> implementations. You can disable the
-<tt>nsss-unix</tt> fallback by compiling with the NSSS_DISABLE_UNIX
-macro defined (-DNSSS_DISABLE_UNIX). Or you can disable any
-attempt to connect to a daemon by compiling with the
-NSSS_DISABLE_SWITCH macro defined (-DNSSS_DISABLE_SWITCH).
-</p>
-
-<p>
- (To be completed.)
-</p>
 
 </body>
 </html>

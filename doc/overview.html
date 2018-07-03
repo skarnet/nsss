@@ -28,7 +28,106 @@ than the POSIX interface specifies.
 </p>
 
 <p>
- To be completed.
+ nsss has two parts: the client library and the nsssd service.
+</p>
+
+<h2> The nsss client library </h2>
+
+<p>
+ The <a href="libnsss/">client library</a> provides:
+</p>
+
+<ul>
+ <li> <a href="libnsss/nsss-unix.html">nsss-unix</a>: a set of
+functions providing access to the standard <tt>/etc/passwd</tt>,
+<tt>/etc/group</tt> and <tt>/etc/shadow</tt> files. </li>
+ <li> <a href="libnsss/nsss-switch.html">nsss-switch: a set of
+functions implementing the same functionality as <tt>nsss-unix</tt>,
+but instead of looking for information in the standard files, they
+connect to a <em>nsssd service</em> (see below) that performs the
+requests for them. <li>
+ <li> three implementations of the the standard <tt>getpwnam()</tt>
+et al. functions: one using the <tt>nsss-unix</tt> functions, one
+using the <tt>nsss-switch</tt> functions, and the default one, called
+<tt>nsss-all</tt>, which attempts to connect to the nsssd service
+and retrieve information from it, but falls back to the <tt>nsss-unix</tt>
+implementation if it fails (for instance, if no nsssd service is
+listening). </li>
+<ul>
+
+<p>
+ Applications wishing to use nsss should be built against this client
+library. The <tt>getpwnam()</tt> et al. definitions will override those
+of the libc, and use the <tt>nsss-all</tt>, <tt>nsss-switch</tt> or
+<tt>nsss-unix</tt> depending on compilation options.
+</p>
+
+<p>
+ Unlike glibc's <tt>nsswitch</tt>, the nsss client library does not
+use dynamically loadable modules. nsss can be statically linked, and
+used in static programs. It's also quite light.
+</p>
+
+<h2> The nsssd service </h2>
+
+<p>
+ For applications that need to use the <tt>nsss-all</tt> or
+<tt>nsss-switch</tt> implementations of <tt>getpwnam()</tt> et al.
+(and that is the point, otherwise the libc's implementation could
+generally be used over <tt>nsss-unix</tt> instead!) there needs to
+be a daemon running on the system, and serving requests from
+<tt>nsss-switch</tt> clients.
+</p>
+
+<p>
+ That daemon should be set up by the system administrator. It should
+listen to the <tt>/run/service/nsssd/s</tt> Unix domain socket; that
+default location can be changed at nsss build time via the
+<tt>--with-nsssd-socket</tt> option to the configure script.
+</p>
+
+<p>
+ As of 0.0.1.0, two suitable implementations of a nsssd daemon are
+provided by the nsss package:
+</p>
+
+<ul>
+ <li> The <a href="nsssd-unix.html">nsssd-unix</a> program, which is
+sort of a dummy implementation since it simply accesses the standard
+files (it simply uses the <tt>nsss-unix</tt> library). It is still
+useful for testing purposes, and to have a placeholder service that
+can easily be replaced later. </li>
+ <li> The <a href="nsssd-nslcd.html">nsssd-nslcd</a> program, which
+performs requests to a
+<a href="https://arthurdejong.org/nss-pam-ldapd/nslcd.8">nslcd</a>
+daemon running on the same system and returns the answers fetched
+by nslcd. This allows nsss to get its users/groups information from
+a LDAP database. </li>
+</ul>
+
+<p>
+ More implementations, with a wider variety of backends, will come
+in future versions of nsss.
+</p>
+
+<p>
+ The provided programs are not meant to be run directly; instead, they
+use the UCSPI protocol and must be spawned by a Unix domain super-server
+(the equivalent of inetd, for Unix domain sockets). The
+<a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
+program, from the <a href="//skarnet.org/software/s6/">s6</a> package,
+is such a super-server. What this means is that for instance, running the
+following command-line as root will set up a correct nsss service:
+</p>
+
+<pre> s6-ipcserver -- /run/service/nsssd/s nsssd-unix </pre>
+
+<p>
+ Refinements can be added to this command-line, such as options to
+drop root privileges after binding to the socket, etc. Examples of how
+to add a nsssd service to your init scripts are provided in the
+<tt>examples/</tt> subdirectory of the nsss package, for OpenRC,
+s6 or s6-rc based systems.
 </p>
 
 </body>

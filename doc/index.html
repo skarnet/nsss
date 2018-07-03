@@ -31,20 +31,32 @@ function is provided by the system's libc. However, not all libcs implement
 a configurable backend for the user/group database. For instance the
 <a href="https://musl-libc.org/">musl</a> libc, on Linux, only supports
 the standard <tt>/etc/passwd</tt> mechanism; it also supports the
-<tt>nscd</tt> protocol but this is not quite enough to implement the
-full set of database access functions with certain backends (such as a
-LDAP server).
+<tt>nscd</tt> protocol but this is not quite enough:
+<p>
+
+<ul>
+ <li> musl only connects to nscd when it cannot find an answer in
+its files backend </li>
+ <li> The nscd protocol does not support enumeration, so primitives
+such as <tt>getpwent()</tt> cannot be implemented over nscd. </li>
+</ul>
+
+<p>
+ The mechanism used by glibc, called <tt>Name Service Switch</tt>
+(abbreviated to <tt>nsswitch</tt> or <tt>NSS</tt>), has its own
+<a href="nsswitch.html">set of issues</a> that makes it unsuitable
+in certain situations.
 </p>
 
 <p>
- <tt>nsss</tt> is a secure implementation of configurable user/group/shadow
-database access, providing <tt>getpwnam()</tt> et al. functionality
-by communicating over a Unix domain socket with a daemon; the daemon
-can perform lookups in any database it chooses.
+ <tt>nsss</tt> is a secure implementation of a "name service switch":
+configurable user/group/shadow database access, providing <tt>getpwnam()</tt>
+et al. functionality by communicating over a Unix domain socket with a daemon;
+the daemon can perform lookups in any database it chooses.
 </p>
 
 <p>
- Unlike NSS, <tt>nsss</tt> does not perform dynamic module
+ <tt>nsss</tt> does not perform dynamic module
 loading, only adds a small footprint to the application's binary,
 and does not add any complex decision engine into the client's address
 space. Applications can be statically linked against the <tt>nsss</tt>
@@ -55,7 +67,8 @@ functions.
 <hr />
 
 <ul>
- <li> <a href="overview.html">An overview of nsss</a> </li>
+ <li> <a href="nsswitch.html">The problem with <tt>nsswitch</tt></a> </li>
+ <li> <a href="overview.html">An overview of <tt>nsss</tt></a> </li>
 </ul>
 
 <hr />
@@ -71,6 +84,10 @@ functions.
 2.6.5.0 or later. It's a build-time requirement. It's also a run-time
 requirement if you link against the shared version of the skalibs
 library. </li>
+ <li> <a href="//skarnet.org/software/s6/">s6</a> version
+2.7.1.1 or later. It's a <em>run-time</em> requirement only, to run
+the nsssd service (and can be done without if you have a suitable replacement
+for <a href="//skarnet.org/software/s6/s6-ipcserver">s6-ipcserver</a>). </li>
 </ul>
 
 <h3> Licensing </h3>
@@ -112,14 +129,32 @@ the previous versions of nsss and the current one. </li>
 
 <h3> Commands </h3>
 
+<p>
+ The following commands are not meant to be directly invoked on the
+command-line. They are meant to be used behind a Unix domain socket
+super-server such as
+<a href="https://skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
+in order to provide a
+<a href="https://skarnet.org/software/s6/localservice.html">local service</a>.
+Depending on the chosen command, the service will provide a different
+backend to the name service.
+</p>
+
 <ul>
+ <li> The <a href="nsssd-unix"><tt>nsssd-unix</tt></a> program </li>
+ <li> The <a href="nsssd-nslcd"><tt>nsssd-nslcd</tt></a> program </li>
 </ul>
+
+<p>
+ Future versions of nsss will come with more backends.
+</p>
 
 <h3> Libraries </h3>
 
 <ul>
- <li> <a href="libnsss/">The <tt>nsss</tt> library interface</a> </li>
- <li> The following primitives are also implemented:
+ <li> <a href="libnsss/">The <tt>nsss</tt> library interface</a>,
+which applications use. A client application using one of the
+following primitives will automatically perform libnsss calls:
   <ul>
    <li> endpwent() </li>
    <li> setpwent() </li>
@@ -144,6 +179,8 @@ the previous versions of nsss and the current one. </li>
    <li> getspnam() </li>
    <li> getspnam_r() </li>
   </ul> </li>
+ <li> <a href="libnsssd/">The <tt>nsssd</tt> library interface</a>,
+which can be used to write additional backends. </li>
 </ul>
 
 <hr />

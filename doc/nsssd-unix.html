@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss: the nsssd-unix program</title>
+    <meta name="Description" content="nsss: the nsssd-unix program" />
+    <meta name="Keywords" content="nsss name service switch nsssd unix daemon service nsssd-unix" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="index.html">nsss</a><br />
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> The nsssd-unix program </h1>
+
+<p>
+nsssd-unix is a daemon providing a backend for clients using the
+<a href="libnsss/">nsss library</a> - more precisely, clients using
+the <a href="libnsss/nsss-all.html">nsss-all</a> or
+the <a href="libnsss/nsss-switch.html">nsss-switch</a> functions.
+</p>
+
+<p>
+ The nsssd-unix backend is a simple one. It simply fetches user/group/shadow
+information from the <tt>/etc/passwd</tt>, <tt>/etc/group</tt> and
+<tt>/etc/shadow</tt> files. The same information can be directly obtained
+by a client if it uses the <a href="libnsss/nsss-unix.html">nsss-unix</a>
+functions, without the overhead of going through an independent process.
+However, setting up a nsssd-unix service can still be useful:
+</p>
+
+<ul>
+ <li> For testing purposes </li>
+ <li> As a placeholder service that will be replaced later with a more
+complex backend </li>
+ <li> ... </li>
+</ul>
+
+<p>
+ nsssd-unix is not meant to be called directly; instead, it is expected to be run from
+a script as a part of a "nsssd"
+<a href="//skarnet.org/software/s6/localservice.html">local service</a>.
+</p>
+
+<p>
+ The <tt>examples/</tt> subdirectory of the nsss package provides examples
+on how to run such a service.
+ The simplest way to do so, for testing purposes, is a command line such as:
+</p>
+<pre>s6-ipcserver -l0 /run/service/nsss/s nsssd-unix</pre>
+
+<p>
+<tt>/run/service/nsss/s</tt> is the default place where nsss's
+implementation of the <tt>pwd.h</tt>, <tt>grp.h</tt> and <tt>shadow.h</tt>
+functions expects the nsssd
+service to be. It can be changed at nsss build time by giving the
+<tt>--with-nsssd-socket=PATH</tt> option to configure.
+</p>
+
+<p>
+ nsssd-unix does not listen to the socket itself: it reads from its
+standard input and writes to its standard output. It relies
+on a superserver such as
+<a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
+to manage connections to the socket. An instance of nsssd-unix is run
+for every client connection.
+</p>
+
+<p>
+ If fine-grained authorizations are required (only allowing
+certain users and groups to connect to the service), the superserver
+can be configured to enforce them.
+</p>
+
+<p>
+ nsssd-unix does not need to run as root, provided it can read the files
+database.
+It is recommended to create a <em>nsss</em> user and group, dedicated to
+the nsssd service, and run the superserver as this user and group.
+</p>
+
+</body>
+</html>

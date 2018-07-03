@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss: the nsssd library interface</title>
+    <meta name="Description" content="nsss: the nsssd library interface" />
+    <meta name="Keywords" content="NSS pwd group shadow library backend nsssd daemon libnsssd skarnet" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="../">nsss</a><br />
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> The <tt>nsssd</tt> library interface </h1>
+
+<h2> General information </h2>
+
+<p>
+ <tt>libnsssd</tt> is a library that can be used by external applications
+to implement extra nsss backends, in the style of
+<a href="../nsssd-unix.html">nsssd-unix</a> and
+<a href="../nsssd-nslcd.html">nsssd-nslcd</a>, without learning the
+details of the nsss protocol or having to perform IO themselves.
+</p>
+
+<h2> Compiling </h2>
+
+<ul>
+ <li> Make sure the nsss headers, as well as the skalibs headers,
+are visible in your header search path. </li>
+ <li> Use <tt>#include &lt;skalibs/strerr2.h&gt;</tt> and
+<tt>#include &lt;nsss/nsssd.h&gt;</tt> </li>
+</ul>
+
+<h2> Linking </h2>
+
+<ul>
+ <li> Make sure the nsssd library, as well as the skalibs library,
+are visible in your library search path. </li>
+ <li> Link against <tt>-lnsssd</tt>, <tt>-lskarnet</tt>, </li>
+<tt>`cat $SYSDEPS/socket.lib`</tt> and
+<tt>`cat $SYSDEPS/tainnow.lib`</tt>, $SYSDEPS being your skalibs
+sysdeps directory. </li>
+</ul>
+
+<h2> Programming </h2>
+
+<ul>
+ <li> In your <tt>main()</tt> function, start with assigning
+the name of your program to the PROG variable. Example:
+<tt>PROG = "nsssd-foobar";</tt> </li>
+ <li> Your <tt>main()</tt> function can parse options and
+take command line arguments as it sees fit. But once it's done
+parsing options, give control to the <tt>nsssd_main()</tt>
+function, using your <em>argv</em> and <em>envp</em> as
+arguments: <tt>return nsssd_main(argv, envp);</tt> </li>
+</ul>
+
+<p>
+ The rest of your program should implement the functions needed by
+<tt>nsssd_main()</tt>. Here is what those functions are:
+</p>
+
+<h4><code>void *nsssd_handle_init (void)</code></h4>
+<p>
+This function must return a pointer to an <em>uninitialized</em>
+handle. The handle can be whatever you need to implement your
+backend; the pointer to your handle will be passed to every
+subsequent function. The function must not return NULL.
+</p>
+
+<h4><code>int nsssd_handle_start (void *handle, char const *const *argv, char const *const *envp)</code></h4>
+<p>
+This function must <em>initialize the handle</em>. The arguments
+it receives are the <em>argv</em> and <em>envp</em> that have been
+passed to <tt>nsssd_main()</tt>. This allows you to write daemons
+that can be somewhat configured via the command line: it is how
+<a href="../nsssd-nslcd.html">nsssd-nslcd</a> takes an argument
+telling it where the nslcd socket is, and uses that argument in
+its own <tt>nsssd_handle_start</tt> to actually connect to the
+nslcd daemon. <br />
+The function must return nonzero if it succeeds, and 0 if it
+fails, setting errno appropriately.
+</p>
+
+<h4><code>void nsssd_handle_end (void *handle)</code></h4>
+<p>
+This function must deinitialize the handle and free all
+related resources: close connections to external processes, etc.
+</p>
+
+<p>
+ TODO: to be completed.
+</p>
+
+</body>
+</html>
