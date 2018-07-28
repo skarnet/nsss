@@ -109,3 +109,4 @@ nsss_unix_shadow_getbyname.o
 nsss_unix_shadow_here.o
 nsss_unix_start.o
 -lskarnet
+-lpthread

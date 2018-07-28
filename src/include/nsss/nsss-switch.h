@@ -5,6 +5,7 @@
 
 #include <sys/types.h>
 #include <limits.h>
+#include <unistd.h>
 #include <skalibs/tai.h>
 #include <skalibs/buffer.h>
 #include <skalibs/stralloc.h>
@@ -14,7 +15,12 @@
 #include <nsss/shadow-switch.h>
 
 #define NSSS_SWITCH_BUFSIZE 4096
+
+#ifdef LOGIN_NAME_MAX
 #define NSSS_SWITCH_NAME_MAXLEN LOGIN_NAME_MAX
+#else
+#define NSSS_SWITCH_NAME_MAXLEN _SC_LOGIN_NAME_MAX
+#endif
 
 typedef struct nsss_switch_s nsss_switch_t, *nsss_switch_t_ref ;
 struct nsss_switch_s
