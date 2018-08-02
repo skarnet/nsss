@@ -21,9 +21,210 @@
 
 <h2> General information </h2>
 
+<p>
+ The <a href="//git.skarnet.org/cgi-bin/cgit.cgi/nsss/tree/src/include/nsss/nsss-unix.h">nsss/nsss-unix.h</a>
+functions in libnsss provide a clean interface to get user/group data from the regular
+<tt>/etc/passwd</tt>, <tt>/etc/group</tt> and <tt>/etc/shadow</tt> text files.
+</p>
+
+<p>
+ All the following functions take as their first argument a pointer to a handle
+that has the <tt>nsss_unix_t</tt> type. This handle must be declared and
+initialized to NSSS_UNIX_ZERO prior to any call. It can be declared in the stack.
+</p>
+
 <h2> Programming </h2>
 
-<p> TODO: to be completed. </p>
+<h4><code>int nsss_unix_pwd_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/passwd</tt>. <em>*a</em> must be
+NSSS_UNIX_ZERO prior to the call. On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/passwd</tt>
+session. This function must be called <em>even for a non-enumeration lookup</em>.
+</p>
+
+<h4><code>int nsss_unix_pwd_maybe_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/passwd</tt> if it hasn't been opened yet.
+On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/passwd</tt>
+session. Calling this function when <em>*a</em> is already opened to an
+<tt>/etc/passwd</tt> session simply returns 1.
+</p>
+
+<h4><code>int nsss_unix_pwd_rewind (nsss_unix_t *a)</code></h4>
+<p>
+Performs a <tt>setpwent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>void nsss_unix_pwd_end (nsss_unix_t *a)</code></h4>
+<p>
+Closes the current <tt>/etc/passwd</tt> session. After this
+function returns, <em>*a</em> can be reused with another
+<tt>nsss_unix_*_start()</tt> function.
+</p>
+
+<h4><code>int nsss_unix_pwd_getbyname (nsss_unix_t *a, struct passwd *pw, stralloc *sa, char const *name)</code></h4>
+<p>
+Performs a <tt>getpwnam(<em>name</em>)</tt> on the current, open,
+<tt>/etc/passwd</tt> session. On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_unix_pwd_getbyuid (nsss_unix_t *a, struct passwd *pw, stralloc *sa, uid_t uid)</code></h4>
+<p>
+Performs a <tt>getpwuid(<em>uid</em>)</tt> on the current, open,
+<tt>/etc/passwd</tt> session. On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>uid</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_unix_pwd_get (nsss_unix_t *a, struct passwd *pw, stralloc *sa)</code></h4>
+<p>
+Performs a <tt>getpwent()</tt> on the current, open,
+<tt>/etc/passwd</tt> session (i.e. get the next entry in the file, as
+part of an enumeration). On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. On EOF, the function returns 0 without changing errno.
+</p>
+
+
+<h4><code>int nsss_unix_grp_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/group</tt>. <em>*a</em> must be
+NSSS_UNIX_ZERO prior to the call. On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/group</tt>
+session. This function must be called <em>even for a non-enumeration lookup</em>.
+</p>
+
+<h4><code>int nsss_unix_grp_maybe_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/group</tt> if it hasn't been opened yet.
+On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/group</tt>
+session. Calling this function when <em>*a</em> is already opened to an
+<tt>/etc/group</tt> session simply returns 1.
+</p>
+
+<h4><code>int nsss_unix_grp_rewind (nsss_unix_t *a)</code></h4>
+<p>
+Performs a <tt>setgrent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>void nsss_unix_grp_end (nsss_unix_t *a)</code></h4>
+<p>
+Closes the current <tt>/etc/group</tt> session. After this
+function returns, <em>*a</em> can be reused with another
+<tt>nsss_unix_*_start()</tt> function.
+</p>
+
+<h4><code>int nsss_unix_grp_getbyname (nsss_unix_t *a, struct group *gr, stralloc *sa, genalloc *ga, char const *name)</code></h4>
+<p>
+Performs a <tt>getgrnam(<em>name</em>)</tt> on the current, open,
+<tt>/etc/group</tt> session. On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_unix_grp_getbygid (nsss_unix_t *a, struct group *gr, stralloc *sa, genalloc *ga, gid_t gid)</code></h4>
+<p>
+Performs a <tt>getgrgid(<em>gid</em>)</tt> on the current, open,
+<tt>/etc/group</tt> session. On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ If <em>gid</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_unix_grp_get (nsss_unix_t *a, struct group *gr, stralloc *sa, genalloc *ga)</code></h4>
+<p>
+Performs a <tt>getgrent()</tt> on the current, open,
+<tt>/etc/group</tt> session (i.e. get the next entry in the file, as
+part of an enumeration). On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ On EOF, the function returns 0 without changing errno.
+</p>
+
+<h4><code>int nsss_unix_shadow_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/shadow</tt>. <em>*a</em> must be
+NSSS_UNIX_ZERO prior to the call. On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/shadow</tt>
+session. This function must be called <em>even for a non-enumeration lookup</em>.
+</p>
+
+<h4><code>int nsss_unix_shadow_maybe_start (nsss_unix_t *a)</code></h4>
+<p>
+Opens a session with <tt>/etc/shadow</tt> if it hasn't been opened yet.
+On error, returns 0, and sets errno.
+On success, returns 1, and <em>*a</em> is a handle to an <tt>/etc/shadow</tt>
+session. Calling this function when <em>*a</em> is already opened to an
+<tt>/etc/shadow</tt> session simply returns 1.
+</p>
+
+<h4><code>int nsss_unix_shadow_rewind (nsss_unix_t *a)</code></h4>
+<p>
+Performs a <tt>setspent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>void nsss_unix_shadow_end (nsss_unix_t *a)</code></h4>
+<p>
+Closes the current <tt>/etc/shadow</tt> session. After this
+function returns, <em>*a</em> can be reused with another
+<tt>nsss_unix_*_start()</tt> function.
+</p>
+
+<h4><code>int nsss_unix_shadow_getbyname (nsss_unix_t *a, struct spwd *sp, stralloc *sa, char const *name)</code></h4>
+<p>
+Performs a <tt>getspnam(<em>name</em>)</tt> on the current, open,
+<tt>/etc/shadow</tt> session. On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*sp</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_unix_shadow_get (nsss_unix_t *a, struct spwd *sp, stralloc *sa)</code></h4>
+<p>
+Performs a <tt>getspent()</tt> on the current, open,
+<tt>/etc/shadow</tt> session (i.e. get the next entry in the file, as
+part of an enumeration). On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*sp</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. On EOF, the function returns 0 without changing errno.
+</p>
 
 </body>
 </html>

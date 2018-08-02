@@ -94,8 +94,51 @@ This function must deinitialize the handle and free all
 related resources: close connections to external processes, etc.
 </p>
 
+<h4><code>int nsssd_pwd_start (void *handle)</code></h4>
 <p>
- TODO: to be completed.
+This function will be called at the start of a passwd enumeration.
+It must return nonzero on success and 0 on error.
+</p>
+
+<h4><code>int nsssd_pwd_rewind (void *handle)</code></h4>
+<p>
+This function will be called on a <em>setpwent()</em> call.
+It must rewind the current enumeration to the start of the
+database.
+It must return nonzero on success and 0 on error.
+</p>
+
+<h4><code>int nsssd_pwd_get (void *handle, struct passwd *pw)</code></h4>
+<p>
+This function will be called on every <em>getpwent()</em> call, i.e.
+on every iteration of an enumeration. On error, it must return 0; on
+success, it must return nonzero and store the obtained passwd structure
+into <em>*pw</em>.
+</p>
+
+<h4><code>void nsssd_pwd_end (void *handle)</code></h4>
+<p>
+This function will be called at the end of a passwd enumeration.
+</p>
+
+<h4><code>int nsssd_pwd_getbyuid (void *handle, struct passwd *pw, uid_t uid)</code></h4>
+<p>
+This function must implement a <em>getpwuid(uid)</em> call. On error, it must
+return 0; on success, it must return nonzero and store the result into
+<em>*pw</em>.
+</p>
+
+<h4><code>int nsssd_pwd_getbyname (void *handle, struct passwd *pw, char const *name)</code></h4>
+<p>
+This function must implement a <em>getpwnam(name)</em> call. On error, it must
+return 0; on success, it must return nonzero and store the result into
+<em>*pw</em>.
+</p>
+
+<p>
+ Similar functions for the group and shadow databases must also be implemented.
+The full list can be found in the
+<a href="//git.skarnet.org/cgi-bin/cgit.cgi/nsss/tree/src/include/nsss/nsssd.h">nsss/nsssd.h</a> header.
 </p>
 
 </body>

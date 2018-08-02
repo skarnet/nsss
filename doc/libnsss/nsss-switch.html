@@ -21,9 +21,195 @@
 
 <h2> General information </h2>
 
+<p>
+ The <a href="//git.skarnet.org/cgi-bin/cgit.cgi/nsss/tree/src/include/nsss/nsss-switch.h">nsss/nsss-switch.h</a>
+functions in libnsss provide a clean interface to get user/group data from a
+<em>nsss daemon</em>, for instance one implemented via
+<a href="../nsssd-unix.html">nsssd-unix</a> or
+<a href="../nsssd-nslcd.html">nsssd-nslcd</a>. They are the C client library
+to such a daemon.
+</p>
+
+<p>
+ Most of the following functions take, in addition to their obvious arguments,
+a <em>tain_t const *</em> argument conventionally named <em>deadline</em> and
+a <em>tain_t *</em> argument conventionally named <em>stamp</em>. These two
+arguments are there to ensure that the function, which connects to another
+process in an otherwise synchronous manner, does not block forever. How to
+use these arguments is explained, for instance,
+<a href="//skarnet.org/s6/libs6/ftrigr.html#synctimed">here</a>.
+A function <em>foobar</em> also has a version named <em>foobar_g</em> that
+only takes the <em>deadline</em> argument, assuming the current timestamp
+is held in the STAMP global variable.
+</p>
+
+<p>
+ All the functions take as their first argument a pointer to a handle
+that has the <tt>nsss_switch_t</tt> type. This handle must be declared and
+initialized to NSSS_SWITCH_ZERO prior to any call. It can be declared in the stack.
+</p>
+
 <h2> Programming </h2>
 
-<p> TODO: to be completed. </p>
+<h4><code>int nsss_switch_start (nsss_switch_t *a, unsigned int what, char const *path, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Opens a session with a nsss daemon listening to a Unix domain socket
+located at <em>path</em>. <em>*a</em> must be
+NSSS_SWITCH_ZERO prior to the call. The nature of the session depends on
+the <em>what</em> argument, which should be one of NSSS_SWITCH_PWD,
+NSSS_SWITCH_GRP or NSSS_SWITCH_SHADOW depending on whether subsequent
+requests will query the user, group or shadow database.
+ On error, the function returns 0, and sets errno.
+On success, it returns 1, and <em>*a</em> is a handle to a session with
+the nsssd daemon. This function must be called for every batch of
+communication with a nsssd service, not only for enumerations.
+</p>
+
+<h4><code>void nsss_switch_end (nsss_switch_t *a, unsigned int what)</code></h4>
+<p>
+ Closes the current session. The <em>what</em> argument must be the same one
+that has been given to <tt>nsss_switch_start</tt>. After this function returns,
+<em>*a</em> can be reused.
+</p>
+
+<h4><code>int nsss_switch_pwd_rewind (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>setpwent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>int nsss_switch_pwd_end (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>endpwent()</tt> operation on the current session,
+i.e. ends an enumeration. Returns 1 on success, and 0 (and sets errno)
+on error.
+</p>
+
+<h4><code>int nsss_switch_pwd_getbyname (nsss_switch_t *a, struct passwd *pw, stralloc *sa, char const *name, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getpwnam(<em>name</em>)</tt> on the current session.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_switch_pwd_getbyuid (nsss_switch_t *a, struct passwd *pw, stralloc *sa, uid_t uid, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getpwuid(<em>uid</em>)</tt> on the current session.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>uid</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_switch_pwd_get (nsss_switch_t *a, struct passwd *pw, stralloc *sa, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a a <tt>getpwent()</tt> on the current session,
+i.e. get the next entry as part of an enumeration.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*pw</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. On EOF, the function returns 0 without changing errno.
+</p>
+
+<h4><code>int nsss_switch_grp_rewind (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>setgrent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>void nsss_switch_grp_end (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>endgrent()</tt> operation on the current session,
+i.e. ends an enumeration. Returns 1 on success, and 0 (and sets errno)
+on error.
+</p>
+
+<h4><code>int nsss_switch_grp_getbyname (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, char const *name, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a a <tt>getgrnam(<em>name</em>)</tt> on the current session.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_switch_grp_getbygid (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, gid_t gid, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getgrgid(<em>gid</em>)</tt> on the current session.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ If <em>gid</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_switch_grp_get (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getgrent()</tt> on the current session,
+i.e. get the next entry as part of an enumeration.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*gr</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings, and the <em>*ga</em>
+<a href="//skarnet.org/skalibs/libstddjb/genalloc.html">genalloc</a>,
+which must be able to hold objects of type <tt>char *</tt>,
+to store pointers for the <tt>gr->gr_mem</tt> field.
+ On EOF, the function returns 0 without changing errno.
+</p>
+
+<h4><code>int nsss_switch_shadow_rewind (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>setspent()</tt> operation on the current session.
+Returns 1 on success, and 0 (and sets errno) on error.
+</p>
+
+<h4><code>int nsss_switch_shadow_end (nsss_switch_t *a, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>endspent()</tt> operation on the current session,
+i.e. ends an enumeration. Returns 1 on success, and 0 (and sets errno)
+on error.
+</p>
+
+<h4><code>int nsss_switch_shadow_getbyname (nsss_switch_t *a, struct spwd *sp, stralloc *sa, char const *name, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getspnam(<em>name</em>)</tt> on the current session.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*sp</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. If <em>name</em> is not found, the function returns 0
+without changing errno.
+</p>
+
+<h4><code>int nsss_switch_shadow_get (nsss_switch_t *a, struct spwd *sp, stralloc *sa, tain_t const *deadline, tain_t *stamp)</code></h4>
+<p>
+Performs the equivalent of a <tt>getspent()</tt> on the current session,
+i.e. get the next entry as part of an enumeration.
+On error, returns 0 and sets errno.
+On success, returns 1, and stores the result into <em>*sp</em>,
+using the <em>*sa</em>
+<a href="//skarnet.org/skalibs/libstddjb/stralloc.html">stralloc</a> to
+store strings. On EOF, the function returns 0 without changing errno.
+</p>
 
 </body>
 </html>
