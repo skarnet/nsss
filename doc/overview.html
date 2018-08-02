@@ -41,11 +41,11 @@ than the POSIX interface specifies.
  <li> <a href="libnsss/nsss-unix.html">nsss-unix</a>: a set of
 functions providing access to the standard <tt>/etc/passwd</tt>,
 <tt>/etc/group</tt> and <tt>/etc/shadow</tt> files. </li>
- <li> <a href="libnsss/nsss-switch.html">nsss-switch: a set of
+ <li> <a href="libnsss/nsss-switch.html">nsss-switch</a>: a set of
 functions implementing the same functionality as <tt>nsss-unix</tt>,
 but instead of looking for information in the standard files, they
 connect to a <em>nsssd service</em> (see below) that performs the
-requests for them. <li>
+requests for them. </li>
  <li> three implementations of the the standard <tt>getpwnam()</tt>
 et al. functions: one using the <tt>nsss-unix</tt> functions, one
 using the <tt>nsss-switch</tt> functions, and the default one, called
@@ -53,7 +53,7 @@ using the <tt>nsss-switch</tt> functions, and the default one, called
 and retrieve information from it, but falls back to the <tt>nsss-unix</tt>
 implementation if it fails (for instance, if no nsssd service is
 listening). </li>
-<ul>
+</ul>
 
 <p>
  Applications wishing to use nsss should be built against this client

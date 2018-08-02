@@ -38,7 +38,7 @@ various server-side daemons such as
 functions that try connecting to a nsssd service first, and fall
 back to the <a href="nsss-unix.html">nsss-unix</a> implementation
 if the connection fails (no nsssd service is running). </li>
-</p>
+</ul>
 
 <p>
  Both <a href="nsss-unix.html">nsss-unix</a> and
@@ -136,7 +136,7 @@ desired. </li>
 <ul>
  <li> Make sure the nsss library, as well as the skalibs library,
 are visible in your library search path. </li>
- <li> Link against <tt>-lnsss</tt>, <tt>-lskarnet</tt>, </li>
+ <li> Link against <tt>-lnsss</tt>, <tt>-lskarnet</tt>, <tt>-lpthread</tt>,
 <tt>`cat $SYSDEPS/socket.lib`</tt> and
 <tt>`cat $SYSDEPS/tainnow.lib`</tt>, $SYSDEPS being your skalibs
 sysdeps directory. </li>
