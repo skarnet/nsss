@@ -1,0 +1,164 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss: the problem with nsswitch</title>
+    <meta name="Description" content="nsss: the problem with nsswitch" />
+    <meta name="Keywords" content="nsss nsswitch nsswitch.conf glibc name service switch" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="index.html">nsss</a><br />
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> The problem with nsswitch </h1>
+
+<p>
+ <em>nsswitch</em>, or
+<a href="https://en.wikipedia.org/wiki/Name_Service_Switch">Name
+Service Switch</a>, is a common Unix mechanism to describe how
+user/group/shadow databases should be accessed. Nowadays it's
+prevalent on Linux because it's the mechanism used by the glibc.
+</p>
+
+<p>
+ Unfortunately, <em>nsswitch</em> has a certain number of flaws
+that make it difficult to use in a small and secure environment.
+In other words, it's crap. Here's why.
+</p>
+
+<h2> <em>nsswitch</em> uses dynamically linked modules. </h2>
+
+<p>
+ <em>nsswitch</em> works by reading a configuration file,
+<tt>/etc/nsswitch.conf</tt>, and depending on what it reads in this
+file, loading one or more shared libraries, via
+<a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/dlopen.html">dlopen()</a>,
+into the application. These shared libraries, for instance
+<tt>/lib/libnss_files-2.19.so</tt>, are provided by the NSS implementation
+(glibc on Linux). This mechanism has drawbacks.
+</p>
+
+<h3> It makes it difficult to link programs statically. </h3>
+
+<p>
+ Programs using <tt>dlopen()</tt> are notoriously difficult to use
+in a static linking environment: by nature, <tt>dlopen()</tt> is
+dynamic, and it's practically impossible to make it work reliably
+and correctly in statically linked programs.
+</p>
+
+<p>
+ So, small programs that just need a <tt>getpwnam()</tt> call
+cannot, for all intents and purposes, be linked statically when
+the implementation of <tt>getpwnam()</tt> goes through <em>nsswitch</em>.
+</p>
+
+<p>
+ By contrast, the <em>nsss</em> implementation of <tt>getpwnam()</tt>
+works with static linking without trouble, and without pulling the
+whole libc - only the <em>nsss</em> client library is pulled, and
+it is quite small.
+</p>
+
+<h3> It dynamically adds third-party code to the process' address space. </h3>
+
+<p>
+ This is a common security issue with dynamically loaded modules.
+</p>
+
+<p>
+ Normally, when you link your executable against a third-party library -
+in this case, the libc - the library has a public API that you're using,
+and that API has documented behaviour. Some sanity checks are performed
+at link time, and if something is terribly wrong, linking fails.
+</p>
+
+<p>
+ This is not the case with dynamically loaded modules used internally
+by a library. These modules do not have a contract with you, the application
+developer, but only with the library that uses them. Some checks are
+performed at <em>library build time</em>, but not at <em>application
+build time</em>. When <tt>dlopen()</tt> is run, it performs some
+minimal checks <em>at run-time</em> (which is the worst time for checks,
+because failure causes application downtime!), then loads code and data
+into your application's address space without ever having verified that
+the interaction is okay.
+</p>
+
+<p>
+ It would be extremely easy for a malicious third-party to inject
+subtly bad code making your application behave in unintended ways
+using dynamically loaded modules. And even from benevolent library
+authors, it makes bugs more subtle and harder to catch.
+</p>
+
+<p>
+ By contrast, <em>nsss</em> doesn't load its backends into the client's
+address space - only the fallback <em>nsss-unix</em> implementation
+using <tt>/etc/passwd</tt> is linked client-side, and there's even an
+option to disable that. All the complex backend code lives server-side
+in the appropriate <em>nsssd</em> daemon, sharing no address space with
+the application.
+</p>
+
+<h2> <em>nsswitch</em> adds a configuration parser and a decision
+automaton to the application. </h2>
+
+<p>
+ <em>nsswitch</em>'s configuration is done via the
+<tt>/etc/nsswitch.conf</tt> file, a text, human-friendly file.
+The first time a user database function is called, the file is read and
+parsed, and then for all subsequent user database function calls, a
+decision automaton (that results from this parsing) is run so the
+engine knows which sequence of backends to call in which situation.
+</p>
+
+<p>
+ All this, obviously, happens at run-time, in the application's
+address space. Maybe it's time for a quick reminder that
+</p>
+
+<ul>
+ <li> parsing is bad - most people can't write parsers, and bugs love them
+(both the parsers and these people) </li>
+ <li> run-time is the worst time for syntax errors, and any other
+errors that could and should be caught <em>earlier</em> </li>
+ <li> library code should be kept as simple as possible and a dynamic
+decision automaton doesn't qualify as "simple" </li>
+ <li> every line of code linked into a critical application (such
+as <tt>login</tt>) is attack surface </li>
+</ul>
+
+<p>
+ The <em>nsswitch</em> configuration model goes against all these basic
+programming principles.
+</p>
+
+<p>
+ By contrast, <em>nsss</em>:
+</p>
+
+<ul>
+ <li> performs no parsing at all - and if a generic backend ever needs
+parsing, it will be done in its own process address space, not in the
+application's. </li>
+ <li> has the simplest possible decision engine: "if contacting the
+backend fails, fall back on the Unix mechanism". And even that can be
+overridden at application build time. If a more complex decision engine
+is needed, it can be implemented, say it with me, in a backend that has
+its own address space. </li>
+ <li> frontloads as many decisions as possible before application run
+time. The backend used by applications is determined when the
+<em>nsssd</em> service starts, and can be changed by modifying and
+restarting this service; the burden of determining which backend to
+run is not carried by applications. </li>
+</ul>
+
+</body>
+</html>
