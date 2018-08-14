@@ -13,7 +13,7 @@ compatible with static linking. The backend is chosen at boot time
 by running the appropriate daemon that will communicate with
 clients.
 
- See http://skarnet.org/software/nsss/ for details.
+ See https://skarnet.org/software/nsss/ for details.
 
 
 * Installation
