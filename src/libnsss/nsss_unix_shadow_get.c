@@ -7,6 +7,13 @@
 #include <nsss/nsss-unix.h>
 #include "nsss-unix-internal.h"
 
+static int lscan (char const *s, long *l)
+{
+  if (*s) return !!ulong0_scan(s, (unsigned long *)l) ;
+  *l = -1 ;
+  return 1 ;
+}
+
 static inline int shadow_parseline (struct spwd *sp, char *s, size_t max)
 {
   struct spwd sp2 ;
@@ -15,19 +22,19 @@ static inline int shadow_parseline (struct spwd *sp, char *s, size_t max)
   if (!nsss_unix_field(&sp2.sp_namp, &s)) return 0 ;
   if (!nsss_unix_field(&sp2.sp_pwdp, &s)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_lstchg)) return 0 ;
+  if (!lscan(p, &sp2.sp_lstchg)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_min)) return 0 ;
+  if (!lscan(p, &sp2.sp_min)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_max)) return 0 ;
+  if (!lscan(p, &sp2.sp_max)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_warn)) return 0 ;
+  if (!lscan(p, &sp2.sp_warn)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_inact)) return 0 ;
+  if (!lscan(p, &sp2.sp_inact)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, (unsigned long *)&sp2.sp_expire)) return 0 ;
+  if (!lscan(p, &sp2.sp_expire)) return 0 ;
   if (!nsss_unix_field(&p, &s)) return 0 ;
-  if (!ulong0_scan(p, &sp2.sp_flag)) return 0 ;
+  if (!lscan(p, (long *)&sp2.sp_flag)) return 0 ;
   *sp = sp2 ;
   return 1 ;
 }
