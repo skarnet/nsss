@@ -567,7 +567,7 @@ int main (int argc, char const *const *argv, char const *const *envp)
     uint32_t t = 0 ;
     for (;;)
     {
-      int opt = subgetopt_r(argc, argv, "d", &l) ;
+      int opt = subgetopt_r(argc, argv, "t:", &l) ;
       if (opt == -1) break ;
       switch (opt)
       {
