@@ -1,12 +1,14 @@
 /* ISC license. */
 
 #include <skalibs/nonposix.h>
+
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <stdint.h>
 #include <errno.h>
+
+#include <skalibs/posixishard.h>
 #include <skalibs/posixplz.h>
-#include <skalibs/error.h>
 #include <skalibs/uint32.h>
 #include <skalibs/sgetopt.h>
 #include <skalibs/buffer.h>
@@ -15,6 +17,7 @@
 #include <skalibs/genalloc.h>
 #include <skalibs/webipc.h>
 #include <skalibs/unix-timed.h>
+
 #include <nsss/nsssd.h>
 #include "nsssd-nslcd.h"
 

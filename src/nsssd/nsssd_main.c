@@ -2,14 +2,16 @@
 
 #include <string.h>
 #include <errno.h>
+
+#include <skalibs/posixishard.h>
 #include <skalibs/uint32.h>
 #include <skalibs/uint64.h>
-#include <skalibs/error.h>
 #include <skalibs/buffer.h>
 #include <skalibs/strerr2.h>
 #include <skalibs/tai.h>
 #include <skalibs/djbunix.h>
 #include <skalibs/unix-timed.h>
+
 #include <nsss/pwd-def.h>
 #include <nsss/grp-def.h>
 #include <nsss/shadow-def.h>

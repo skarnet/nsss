@@ -3,9 +3,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <skalibs/posixplz.h>
+
+#include <skalibs/posixishard.h>
 #include <skalibs/uint32.h>
-#include <skalibs/error.h>
 #include <skalibs/stralloc.h>
 #include <skalibs/unix-timed.h>
 #include <nsss/pwd-def.h>
