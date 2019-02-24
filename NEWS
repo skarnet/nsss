@@ -4,6 +4,7 @@ In 0.0.1.1
 ----------
 
  - Bugfixes.
+ - Everything builds as PIC by default.
 
 
 In 0.0.1.0
