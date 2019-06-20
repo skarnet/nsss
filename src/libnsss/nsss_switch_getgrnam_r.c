@@ -26,10 +26,12 @@ int nsss_switch_getgrnam_r (char const *name, struct group *gr, char *buf, size_
   nsss_switch_end(&a, NSSS_SWITCH_GRP) ;
   if (!nsss_grp_copy(gr, buf, buflen, &gr2, sa.s, sa.len, genalloc_s(char *, &ga), genalloc_len(char *, &ga)))
   {
+    genalloc_free(char *, &ga) ;
     stralloc_free(&sa) ;
     *grp = 0 ;
     return errno ;
   }
+  genalloc_free(char *, &ga) ;
   stralloc_free(&sa) ;
   *grp = gr ;
   return (errno = e, 0) ;
