@@ -2,10 +2,13 @@
 
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include <skalibs/posixishard.h>
 #include <skalibs/uint32.h>
 #include <skalibs/uint64.h>
+#include <skalibs/types.h>
 #include <skalibs/buffer.h>
 #include <skalibs/strerr2.h>
 #include <skalibs/tai.h>
@@ -382,7 +385,25 @@ static inline void do_spnam (void *a)
 
 int nsssd_main (char const *const *argv, char const *const *envp)
 {
-  void *a = nsssd_handle_init() ;
+  void *a ;
+
+ /* If root, drop privileges to the client's, because shadow */
+
+  if (!geteuid())
+  {                                                                   
+    uid_t uid ;                                                             
+    gid_t gid ;                                                         
+    char const *x = getenv("IPCREMOTEEGID") ;                               
+    if (!x) strerr_dienotset(100, "IPCREMOTEEGID") ;                       
+    if (!gid0_scan(x, &gid)) strerr_dieinvalid(100, "IPCREMOTEEGID") ;      
+    if (setgid(gid) == -1) strerr_diefu2sys(111, "setgid to ", x) ;         
+    x = getenv("IPCREMOTEEUID") ;                                           
+    if (!x) strerr_dienotset(100, "IPCREMOTEEUID") ;                        
+    if (!uid0_scan(x, &uid)) strerr_dieinvalid(100, "IPCREMOTEEUID") ;      
+    if (setuid(uid) == -1) strerr_diefu2sys(111, "setuid to ", x) ;
+  }
+                                            
+  a = nsssd_handle_init() ;
   if (ndelay_on(0) < 0) strerr_diefu1sys(111, "set stdin non-blocking") ;
   tain_now_g() ;
   if (!nsssd_handle_start(a, argv, envp))
