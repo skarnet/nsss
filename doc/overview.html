@@ -87,7 +87,7 @@ default location can be changed at nsss build time via the
 </p>
 
 <p>
- As of 0.0.1.0, two suitable implementations of a nsssd daemon are
+ As of 0.0.2.0, three suitable implementations of a nsssd daemon are
 provided by the nsss package:
 </p>
 
@@ -103,6 +103,9 @@ performs requests to a
 daemon running on the same system and returns the answers fetched
 by nslcd. This allows nsss to get its users/groups information from
 a LDAP database. </li>
+ <li> The <a href="nsssd-switch.html">nsssd-switch</a> program, which
+tries several other backends in sequence and uses the first one that
+succeeds. </li>
 </ul>
 
 <p>

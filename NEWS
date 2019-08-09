@@ -1,7 +1,15 @@
 Changelog for nsss.
 
+In 0.0.2.0
+----------
+
+ - Adaptation to skalibs-2.9.0.0
+ - getgrouplist() support.
+
+
 In 0.0.1.2
 ----------
+
  - Bugfixes.
 
 
