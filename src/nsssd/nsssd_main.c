@@ -402,7 +402,8 @@ int nsssd_main (char const *const *argv, char const *const *envp)
     if (!uid0_scan(x, &uid)) strerr_dieinvalid(100, "IPCREMOTEEUID") ;      
     if (setuid(uid) == -1) strerr_diefu2sys(111, "setuid to ", x) ;
   }
-                                            
+
+  tain_now_set_stopwatch() ;                                            
   a = nsssd_handle_init() ;
   if (ndelay_on(0) < 0) strerr_diefu1sys(111, "set stdin non-blocking") ;
   tain_now_g() ;
