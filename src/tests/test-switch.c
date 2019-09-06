@@ -20,8 +20,7 @@ int main (void)
   genalloc ga = GENALLOC_ZERO ;
   tain_t deadline ;
   PROG = "test-switch" ;
-  tain_now_set_stopwatch() ;
-  tain_now_g() ;
+  tain_now_set_stopwatch_g() ;
   tain_from_millisecs(&deadline, 10000) ;
   tain_add_g(&deadline, &deadline) ;
 
