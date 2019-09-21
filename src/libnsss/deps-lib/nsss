@@ -95,6 +95,7 @@ nsss_unix_getgrouplist.o
 nsss_unix_grp_get.o
 nsss_unix_grp_getbygid.o
 nsss_unix_grp_getbyname.o
+nsss_unix_grp_getlist.o
 nsss_unix_grp_here.o
 nsss_unix_maybe_start.o
 nsss_unix_pwd_get.o
