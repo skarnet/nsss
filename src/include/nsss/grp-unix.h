@@ -16,5 +16,6 @@ extern struct group *nsss_unix_getgrgid (gid_t) ;
 extern struct group *nsss_unix_getgrnam (char const *) ;
 extern int nsss_unix_getgrgid_r (gid_t, struct group *, char *, size_t, struct group **) ;
 extern int nsss_unix_getgrnam_r (char const *, struct group *, char *, size_t, struct group **) ;
+extern int nsss_unix_getgrouplist (char const *, gid_t, gid_t *, int *) ;
 
 #endif

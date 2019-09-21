@@ -91,6 +91,7 @@ nsss_unix_getspent.o
 nsss_unix_getspent_r.o
 nsss_unix_getspnam.o
 nsss_unix_getspnam_r.o
+nsss_unix_getgrouplist.o
 nsss_unix_grp_get.o
 nsss_unix_grp_getbygid.o
 nsss_unix_grp_getbyname.o

@@ -20,6 +20,10 @@ extern "C" {
 #define getgrnam nsss_unix_getgrnam
 #define getgrnam_r nsss_unix_getgrnam_r
 
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+# define getgrouplist nsss_unix_getgrouplist
+#endif
+
 #else
 #ifdef NSSS_DISABLE_UNIX
 
@@ -34,6 +38,10 @@ extern "C" {
 #define getgrnam nsss_switch_getgrnam
 #define getgrnam_r nsss_switch_getgrnam_r
 
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+# define getgrouplist nsss_switch_getgrouplist
+#endif
+
 #else
 
 #include <nsss/grp-all.h>
@@ -46,6 +54,10 @@ extern "C" {
 #define getgrgid_r nsss_all_getgrgid_r
 #define getgrnam nsss_all_getgrnam
 #define getgrnam_r nsss_all_getgrnam_r
+
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+# define getgrouplist nsss_all_getgrouplist
+#endif
 
 #endif
 #endif

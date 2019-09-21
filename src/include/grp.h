@@ -12,7 +12,6 @@
 
 #if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
 #include <sys/types.h>
-extern int getgrouplist (char const *, gid_t, gid_t *, int *) ;
 extern int setgroups (size_t, gid_t const *) ;
 extern int initgroups (char const *, gid_t) ;
 #endif
