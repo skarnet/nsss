@@ -48,7 +48,7 @@ extern int nsss_unix_pwd_getbyuid (nsss_unix_t *, struct passwd *, stralloc *, u
 extern int nsss_unix_grp_get (nsss_unix_t *, struct group *, stralloc *, genalloc *) ;
 extern int nsss_unix_grp_getbyname (nsss_unix_t *, struct group *, stralloc *, genalloc *, char const *) ;
 extern int nsss_unix_grp_getbygid (nsss_unix_t *, struct group *, stralloc *, genalloc *, gid_t) ;
-extern int nsss_unix_grp_getlist (nsss_unix_t *, gid_t *, size_t, size_t *, stralloc *, genalloc *, char const *) ;
+extern int nsss_unix_grp_getlist (nsss_unix_t *, char const *, gid_t *, size_t, size_t *, stralloc *, genalloc *) ;
 
 
  /* Shadow */

@@ -467,6 +467,17 @@ int nsssd_grp_getbyname (void *handle, struct group *gr, char const *name)
   return 0 ;
 }
 
+int nsssd_grp_getlist (void *handle, char const *user, gid_t *gids, size_t n, size_t *r)
+{
+  /* TODO: find a sane way of implementing getgrouplist() over nslcd */
+  (void)handle ;
+  (void)user ;
+  (void)gids ;
+  (void)n ;
+  (void)r ;
+  return (errno = ENOSYS, 0) ;
+}
+
 void nsssd_grp_end (void *handle)
 {
 }

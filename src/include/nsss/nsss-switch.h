@@ -79,8 +79,8 @@ extern int nsss_switch_grp_getbyname (nsss_switch_t *, struct group *, stralloc 
 #define nsss_switch_grp_getbyname_g(a, b, sa, ga, name, deadline) nsss_switch_grp_getbyname(a, b, sa, ga, name, (deadline), &STAMP)
 extern int nsss_switch_grp_getbygid (nsss_switch_t *, struct group *, stralloc *, genalloc *, gid_t, tain_t const *, tain_t *) ;
 #define nsss_switch_grp_getbygid_g(a, b, sa, ga, g, deadline) nsss_switch_grp_getbygid(a, b, sa, ga, g, (deadline), &STAMP)
-extern int nsss_switch_grp_getlist (nsss_switch_t *, char const *, gid_t, genalloc *, tain_t const *, tain_t *) ;
-#define nsss_switch_grp_getlist_g(a, user, g, ga, deadline) nsss_switch_grp_getlist(a, user, g, ga, (deadline), &STAMP)
+extern int nsss_switch_grp_getlist (nsss_switch_t *, char const *, gid_t *, size_t, size_t *, stralloc *, tain_t const *, tain_t *) ;
+#define nsss_switch_grp_getlist_g(a, user, gids, n, r, sa, deadline) nsss_switch_grp_getlist(a, user, gids, n, r, sa, (deadline), &STAMP)
 
 
  /* Shadow */

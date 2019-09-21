@@ -8,6 +8,7 @@ nsss_all_getgrgid.o
 nsss_all_getgrgid_r.o
 nsss_all_getgrnam.o
 nsss_all_getgrnam_r.o
+nsss_all_getgrouplist.o
 nsss_all_getpwent.o
 nsss_all_getpwent_r.o
 nsss_all_getpwnam.o
@@ -23,6 +24,7 @@ nsss_all_setpwent.o
 nsss_all_setspent.o
 nsss_grp_copy.o
 nsss_grp_here.o
+nsss_grouplist_adjust.o
 nsss_pwd_copy.o
 nsss_pwd_here.o
 nsss_shadow_copy.o
@@ -37,6 +39,7 @@ nsss_switch_getgrgid.o
 nsss_switch_getgrgid_r.o
 nsss_switch_getgrnam.o
 nsss_switch_getgrnam_r.o
+nsss_switch_getgrouplist.o
 nsss_switch_getpwent.o
 nsss_switch_getpwent_r.o
 nsss_switch_getpwnam.o
@@ -51,6 +54,7 @@ nsss_switch_grp_end.o
 nsss_switch_grp_get.o
 nsss_switch_grp_getbygid.o
 nsss_switch_grp_getbyname.o
+nsss_switch_grp_getlist.o
 nsss_switch_grp_read.o
 nsss_switch_grp_rewind.o
 nsss_switch_here.o
@@ -81,6 +85,8 @@ nsss_unix_getgrgid.o
 nsss_unix_getgrgid_r.o
 nsss_unix_getgrnam.o
 nsss_unix_getgrnam_r.o
+nsss_unix_getgrouplist.o
+nsss_unix_getgrouplist_preadjust.o
 nsss_unix_getpwent.o
 nsss_unix_getpwent_r.o
 nsss_unix_getpwnam.o
@@ -91,7 +97,6 @@ nsss_unix_getspent.o
 nsss_unix_getspent_r.o
 nsss_unix_getspnam.o
 nsss_unix_getspnam_r.o
-nsss_unix_getgrouplist.o
 nsss_unix_grp_get.o
 nsss_unix_grp_getbygid.o
 nsss_unix_grp_getbyname.o

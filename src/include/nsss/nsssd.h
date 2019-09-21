@@ -73,6 +73,7 @@ extern int nsssd_grp_rewind (void *) ;
 extern int nsssd_grp_get (void *, struct group *) ;
 extern int nsssd_grp_getbygid (void *, struct group *, gid_t) ;
 extern int nsssd_grp_getbyname (void *, struct group *, char const *) ;
+extern int nsssd_grp_getlist (void *, char const *, gid_t *, size_t, size_t *) ;
 extern void nsssd_grp_end (void *) ;
 
 extern int nsssd_shadow_start (void *) ;

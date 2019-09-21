@@ -24,7 +24,7 @@ extern struct group nsss_grp_here ;
 extern stralloc nsss_grp_sa_here ;
 extern genalloc nsss_grp_ga_here ;
 extern int nsss_grp_copy (struct group *, char *, size_t, struct group const *, char const *, size_t, char *const *, size_t) ;
-
+extern int nsss_grouplist_adjust (size_t, size_t, gid_t, gid_t *, int *, int) ;
 
  /* Shadow */
 

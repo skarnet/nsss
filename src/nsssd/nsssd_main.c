@@ -11,6 +11,7 @@
 #include <skalibs/types.h>
 #include <skalibs/buffer.h>
 #include <skalibs/strerr2.h>
+#include <skalibs/genalloc.h>
 #include <skalibs/tai.h>
 #include <skalibs/djbunix.h>
 #include <skalibs/unix-timed.h>
@@ -309,6 +310,54 @@ static inline void do_grgid (void *a)
   print_gr(&gr) ;
 }
 
+static inline void do_grlist (void *a)
+{
+  uint64_t n ;
+  uint32_t len ;
+  char buf[12] ;
+  get0(buf, 12) ;
+  uint64_unpack_big(buf, &n) ;
+  uint32_unpack_big(buf + 8, &len) ;
+  if (!len || len > NSSS_SWITCH_NAME_MAXLEN - 1)
+  {
+    answer(EPROTO) ;
+    return ;
+  }
+  {
+    genalloc ga = GENALLOC_ZERO ;
+    size_t r ;
+    char user[len] ;
+    get0(user, len) ;
+    if (user[len-1])
+    {
+      answer(EPROTO) ;
+      return ;
+    }
+    if (!genalloc_ready(gid_t, &ga, n))
+    {
+      answer(errno) ;
+      return ;
+    }
+    if (!nsssd_grp_getlist(a, user, genalloc_s(gid_t, &ga), n, &r))
+    {
+      genalloc_free(gid_t, &ga) ;
+      answer(errno) ;
+      return ;
+    }
+    put1("", 1) ;
+    uint64_pack_big(buf, n) ; put1(buf, 8) ;
+    uint64_pack_big(buf, r) ; put1(buf, 8) ;
+    if (r > n) r = n ;
+    for (size_t i = 0 ; i < r ; i++)
+    {
+      gid_pack_big(buf, genalloc_s(gid_t, &ga)[i]) ;
+      put1(buf, sizeof(gid_t)) ;
+    }
+    genalloc_free(gid_t, &ga) ;
+  }
+  flush1() ;
+}
+
 static inline void do_spend (void *a)
 {
   nsssd_shadow_end(a) ;
@@ -429,6 +478,7 @@ int nsssd_main (char const *const *argv, char const *const *envp)
       case NSSS_SWITCH_GRP_GET : do_grget(a) ; break ;
       case NSSS_SWITCH_GRP_GETBYNAME : do_grnam(a) ; break ;
       case NSSS_SWITCH_GRP_GETBYGID : do_grgid(a) ; break ;
+      case NSSS_SWITCH_GRP_GETLIST : do_grlist(a) ; break ;
       case NSSS_SWITCH_SHADOW_END : do_spend(a) ; break ;
       case NSSS_SWITCH_SHADOW_REWIND : do_sprewind(a) ; break ;
       case NSSS_SWITCH_SHADOW_GET : do_spget(a) ; break ;

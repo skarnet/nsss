@@ -115,6 +115,12 @@ int nsssd_grp_getbyname (void *handle, struct group *gr, char const *name)
   return 1 ;
 }
 
+int nsssd_grp_getlist (void *handle, char const *user, gid_t *gids, size_t n, size_t *r)
+{
+  (void)handle ;
+  return nsss_unix_getgrouplist_preadjust(user, gids, n, r) ;
+}
+
 void nsssd_grp_end (void *handle)
 {
   nsss_unix_endgrent() ;
