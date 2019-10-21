@@ -165,13 +165,13 @@ libnsssd.a.xyzzy: src/nsssd/nsssd_main.lo src/nsssd/nsssd_convert.lo
 endif
 libnsssd.so.xyzzy: EXTRA_LIBS := -lskarnet
 libnsssd.so.xyzzy: src/nsssd/nsssd_main.lo src/nsssd/nsssd_convert.lo
-nsssd-nslcd: EXTRA_LIBS :=
-nsssd-nslcd: src/nsssd/nsssd-nslcd.o ${LIBNSSSD} -lskarnet
-nsssd-unix: EXTRA_LIBS :=
-nsssd-unix: src/nsssd/nsssd-unix.o ${LIBNSSS} ${LIBNSSSD} -lskarnet
-test-all-fallback: EXTRA_LIBS := ${SOCKET_LIB} ${SYSCLOCK_LIB}
-test-all-fallback: src/tests/test-all-fallback.o ${LIBNSSS} -lskarnet
-test-switch: EXTRA_LIBS := ${SOCKET_LIB} ${SYSCLOCK_LIB}
-test-switch: src/tests/test-switch.o ${LIBNSSS} -lskarnet
-test-unix: EXTRA_LIBS :=
-test-unix: src/tests/test-unix.o ${LIBNSSS} -lskarnet
+nsssd-nslcd: EXTRA_LIBS := -lskarnet
+nsssd-nslcd: src/nsssd/nsssd-nslcd.o ${LIBNSSSD}
+nsssd-unix: EXTRA_LIBS := -lskarnet
+nsssd-unix: src/nsssd/nsssd-unix.o ${LIBNSSS} ${LIBNSSSD}
+test-all-fallback: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
+test-all-fallback: src/tests/test-all-fallback.o ${LIBNSSS}
+test-switch: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
+test-switch: src/tests/test-switch.o ${LIBNSSS}
+test-unix: EXTRA_LIBS := -lskarnet
+test-unix: src/tests/test-unix.o ${LIBNSSS}
