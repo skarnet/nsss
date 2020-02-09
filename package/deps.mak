@@ -165,7 +165,7 @@ libnsssd.a.xyzzy: src/nsssd/nsssd_main.lo src/nsssd/nsssd_convert.lo
 endif
 libnsssd.so.xyzzy: EXTRA_LIBS := -lskarnet
 libnsssd.so.xyzzy: src/nsssd/nsssd_main.lo src/nsssd/nsssd_convert.lo
-nsssd-nslcd: EXTRA_LIBS := -lskarnet
+nsssd-nslcd: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
 nsssd-nslcd: src/nsssd/nsssd-nslcd.o ${LIBNSSSD}
 nsssd-unix: EXTRA_LIBS := -lskarnet
 nsssd-unix: src/nsssd/nsssd-unix.o ${LIBNSSS} ${LIBNSSSD}

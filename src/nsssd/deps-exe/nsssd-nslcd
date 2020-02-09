@@ -1,2 +1,4 @@
 ${LIBNSSSD}
 -lskarnet
+${SOCKET_LIB}
+${SYSCLOCK_LIB}
