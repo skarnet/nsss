@@ -4,11 +4,12 @@
 #include <string.h>
 #include <errno.h>
 
-#include <skalibs/posixishard.h>
 #include <skalibs/uint32.h>
 #include <skalibs/uint64.h>
 #include <skalibs/stralloc.h>
 #include <skalibs/unix-timed.h>
+#include <skalibs/posixishard.h>
+
 #include <nsss/shadow-def.h>
 #include "nsss-switch-internal.h"
 

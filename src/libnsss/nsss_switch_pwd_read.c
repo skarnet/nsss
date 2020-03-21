@@ -4,10 +4,11 @@
 #include <string.h>
 #include <errno.h>
 
-#include <skalibs/posixishard.h>
 #include <skalibs/uint32.h>
 #include <skalibs/stralloc.h>
 #include <skalibs/unix-timed.h>
+#include <skalibs/posixishard.h>
+
 #include <nsss/pwd-def.h>
 #include "nsss-switch-internal.h"
 
