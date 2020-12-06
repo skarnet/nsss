@@ -57,7 +57,7 @@ ALL_BINS := $(LIBEXEC_TARGETS) $(BIN_TARGETS)
 ALL_LIBS := $(SHARED_LIBS) $(STATIC_LIBS) $(INTERNAL_LIBS)
 ALL_INCLUDES := $(wildcard src/include/$(package)/*.h)
 
-all: $(ALL_LIBS) $(ALL_BINS) $(ALL_INCLUDES) src/include/pwd.h src/include/grp.h src/include/shadow.h
+all: $(ALL_LIBS) $(ALL_BINS) $(ALL_INCLUDES) $(EXTRA_INCLUDES)
 
 clean:
 	@exec rm -f $(ALL_LIBS) $(ALL_BINS) $(wildcard src/*/*.o src/*/*.lo) $(TEST_BINS) $(EXTRA_TARGETS)
@@ -86,7 +86,7 @@ install-dynlib: $(SHARED_LIBS:lib%.so.xyzzy=$(DESTDIR)$(dynlibdir)/lib%.so)
 install-libexec: $(LIBEXEC_TARGETS:%=$(DESTDIR)$(libexecdir)/%)
 install-bin: $(BIN_TARGETS:%=$(DESTDIR)$(bindir)/%)
 install-lib: $(STATIC_LIBS:lib%.a.xyzzy=$(DESTDIR)$(libdir)/lib%.a)
-install-include: $(ALL_INCLUDES:src/include/$(package)/%.h=$(DESTDIR)$(includedir)/$(package)/%.h) $(DESTDIR)$(includedir)/pwd.h $(DESTDIR)$(includedir)/grp.h $(DESTDIR)$(includedir)/shadow.h
+install-include: $(ALL_INCLUDES:src/include/$(package)/%.h=$(DESTDIR)$(includedir)/$(package)/%.h) $(EXTRA_INCLUDES:src/include/%.h=$(DESTDIR)$(includedir)/%.h)
 install-data: $(ALL_DATA:src/etc/%=$(DESTDIR)$(datadir)/%)
 
 tests: $(TEST_BINS)
@@ -134,13 +134,7 @@ $(DESTDIR)$(libdir)/lib%.a: lib%.a.xyzzy
 $(DESTDIR)$(includedir)/$(package)/%.h: src/include/$(package)/%.h
 	exec $(INSTALL) -D -m 644 $< $@
 
-$(DESTDIR)$(includedir)/pwd.h: src/include/pwd.h
-	exec $(INSTALL) -D -m 644 $< $@
-
-$(DESTDIR)$(includedir)/grp.h: src/include/grp.h
-	exec $(INSTALL) -D -m 644 $< $@
-
-$(DESTDIR)$(includedir)/shadow.h: src/include/shadow.h
+$(DESTDIR)$(includedir)/%.h: src/include/%.h
 	exec $(INSTALL) -D -m 644 $< $@
 
 %.o: %.c

@@ -103,6 +103,17 @@ the other functions will be aliased similarly.
 </p>
 
 <p>
+ <tt>pwd.h</tt> can be found in the <tt>nsss/</tt> subdirectory of
+the header installation directory; if the <tt>--enable-libc-includes</tt>
+option has been given to configure, it can also be found directly
+in that directory. (Example: <tt>/usr/include/nsss/pwd.h</tt> is
+always installed, but if the option has been given at nsss build time,
+<tt>/usr/include/pwd.h</tt> is also installed and replaces the
+version provided by the libc.) This also applies to the <tt>grp.h</tt>
+and <tt>shadow.h</tt> files.
+</p>
+
+<p>
  If the NSSS_DISABLE_SWITCH macro is defined before inclusion of the
 nsss headers, then <tt>getpwnam()</tt> will be aliased to
 <tt>nsss_unix_getpwnam()</tt> instead, and the other functions will
@@ -121,9 +132,17 @@ functions will follow the same pattern.
 are visible in your header search path. </li>
  <li> Use <tt>#include &lt;nsss/nsss.h&gt;</tt> </li>
  <li> To use the standard <tt>pwd.h</tt> interface, you can
-just <tt>#include &lt;pwd.h&gt;</tt>, which will work as long
-as the <tt>nsss/pwd.h</tt> header is accessible in your header
-search path. </li>
+just <tt>#include &lt;pwd.h&gt;</tt>, which will work:
+  <ul>
+   <li> either if the <tt>--enable-libc-includes</tt> option
+has been given at nsss build time </li>
+   <li> or if you give the <tt>-I/usr/include/nsss</tt> option
+to your compiler. (Depending on your standard header location,
+specify that the header search path should include the
+<tt>nsss</tt> subdirectory of that location.) This is useful when
+the administrator did not want to overwrite the libc-provided
+<tt>pwd.h</tt> file when they installed nsss. </li>
+  </ul> </li>
  <li> Same thing for <tt>grp.h</tt> and <tt>shadow.h</tt>. </li>
  <li> If don't want to use the nsss-all implementation of
 "try nsss-switch and fall back to nsss-unix if it fails", then

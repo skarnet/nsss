@@ -18,11 +18,17 @@
 
 <h1> What has changed in nsss </h1>
 
-<h2> in 0.0.2.3 </h2>
+<h2> in 0.1.0.0 </h2>
 
 <ul>
  <li> <a href="//skarnet.org/software/skalibs/">skalibs</a> dependency bumped to
-2.9.2.1. </li>
+2.10.0.0. </li>
+ <li> <a href="//skarnet.org/software/s6/">s6</a> optional dependency bumped to
+2.10.0.0. </li>
+ <li> The <tt>pwd.h</tt>, <tt>grp.h</tt> and <tt>shadow.h</tt> header files are
+not installed by default anymore. You now need to explicitly give the
+<tt>--enable-libc-includes</tt> configure option in order to install them. The
+point of this change is to avoid overwriting libc headers accidentally. </li>
 </ul>
 
 <h2> in 0.0.2.2 </h2>

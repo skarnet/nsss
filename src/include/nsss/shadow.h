@@ -44,6 +44,25 @@ extern "C" {
 #endif
 #endif
 
+ /*
+   The following functions are not implemented by nsss.
+   However, the libc may implement them, so we still need to
+   declare them. Of course, we only declare functions that
+   do not conflict with nsss operation.
+ */
+
+#include <stdio.h>
+
+extern struct spwd *fgetspent (FILE *) ;
+extern struct spwd *sgetspent (char const *) ;
+extern int putspent (struct spwd const *, FILE *) ;
+extern int lckpwdf (void) ;
+extern int ulckpwdf (void) ;
+
+#ifdef _DEFAULT_SOURCE
+extern int fgetspent_r(FILE *, struct spwd *, char *, size_t, struct spwd **) ;
+extern int sgetspent_r (char const *, struct spwd *, char *, size_t, struct spwd **) ;
+#endif
 
 #ifdef __cplusplus
 }

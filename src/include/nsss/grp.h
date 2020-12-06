@@ -62,6 +62,25 @@ extern "C" {
 #endif
 #endif
 
+ /*
+   The following functions are not implemented by nsss.
+   However, the libc may implement them, so we still need to
+   declare them. Of course, we only declare functions that
+   do not conflict with nsss operation.
+ */
+
+#if defined(_GNU_SOURCE) || defined(_DEFAULT_SOURCE)
+#include <sys/types.h>
+extern int setgroups (size_t, gid_t const *) ;
+extern int initgroups (char const *, gid_t) ;
+#endif
+
+#ifdef _GNU_SOURCE
+#include <stdio.h>
+extern struct group *fgetgrent (FILE *) ;
+extern int fgetgrent_r (FILE *, struct group *, char *, size_t, struct group **) ;
+extern int putgrent (struct group const *, FILE *) ;
+#endif
 
 #ifdef __cplusplus
 }

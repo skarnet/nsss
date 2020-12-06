@@ -1,9 +1,12 @@
 Changelog for nsss.
 
-In 0.0.2.3
+In 0.1.0.0
 ----------
 
  - Bugfixes.
+ - pwd.h, grp.h and shadow.h are not installed by default anymore.
+You now need to explicitly give the --enable-libc-includes
+configure option.
 
 
 In 0.0.2.2

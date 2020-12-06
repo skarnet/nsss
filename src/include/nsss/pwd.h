@@ -50,6 +50,19 @@ extern "C" {
 #endif
 #endif
 
+ /*
+   The following functions are not implemented by nsss.
+   However, the libc may implement them, so we still need to
+   declare them. Of course, we only declare functions that
+   do not conflict with nsss operation.
+ */
+
+#ifdef _GNU_SOURCE
+#include <stdio.h>
+extern struct passwd *fgetpwent (FILE *) ;
+extern int fgetpwent_r (FILE *, struct passwd *, char *, size_t, struct passwd **) ;
+extern int putpwent (struct passwd const *, FILE *) ;
+#endif
 
 #ifdef __cplusplus
 }
