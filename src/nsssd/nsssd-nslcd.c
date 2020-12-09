@@ -1,7 +1,6 @@
 /* ISC license. */
 
 #include <skalibs/nonposix.h>
-
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <stdint.h>
@@ -15,7 +14,8 @@
 #include <skalibs/strerr2.h>
 #include <skalibs/stralloc.h>
 #include <skalibs/genalloc.h>
-#include <skalibs/webipc.h>
+#include <skalibs/djbunix.h>
+#include <skalibs/socket.h>
 #include <skalibs/unix-timed.h>
 
 #include <nsss/nsssd.h>

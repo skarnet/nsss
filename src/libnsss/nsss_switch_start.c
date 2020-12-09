@@ -2,7 +2,8 @@
 
 #include <skalibs/buffer.h>
 #include <skalibs/djbunix.h>
-#include <skalibs/webipc.h>
+#include <skalibs/socket.h>
+
 #include <nsss/nsss-switch.h>
 
 static inline int nsss_switch_connect (nsss_switch_t *a, char const *path, tain_t const *deadline, tain_t *stamp)
