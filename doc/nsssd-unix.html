@@ -52,10 +52,10 @@ a script as a part of a "nsssd"
 on how to run such a service.
  The simplest way to do so, for testing purposes, is a command line such as:
 </p>
-<pre>s6-ipcserver -l0 /run/service/nsss/s nsssd-unix</pre>
+<pre>s6-ipcserver -l0 /run/service/nsssd/s nsssd-unix</pre>
 
 <p>
-<tt>/run/service/nsss/s</tt> is the default place where nsss's
+<tt>/run/service/nsssd/s</tt> is the default place where nsss's
 implementation of the <tt>pwd.h</tt>, <tt>grp.h</tt> and <tt>shadow.h</tt>
 functions expects the nsssd
 service to be. It can be changed at nsss build time by giving the
