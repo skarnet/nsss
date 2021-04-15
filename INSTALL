@@ -7,7 +7,8 @@ Build Instructions
   - A POSIX-compliant C development environment
   - GNU make version 3.81 or later
   - skalibs version 2.10.0.3 or later: https://skarnet.org/software/skalibs/
-  - To run the test suite and the nsssd-* programs: s6 version 2.10.0.3 or later: https://skarnet.org/software/s6/
+  - To run the test suite and the nsssd-* programs:
+      s6 version 2.10.0.3 or later: https://skarnet.org/software/s6/
 
  This software will run on any operating system that implements
 POSIX.1-2008, available at:
