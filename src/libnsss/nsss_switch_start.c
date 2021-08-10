@@ -6,7 +6,7 @@
 
 #include <nsss/nsss-switch.h>
 
-static inline int nsss_switch_connect (nsss_switch_t *a, char const *path, tain_t const *deadline, tain_t *stamp)
+static inline int nsss_switch_connect (nsss_switch_t *a, char const *path, tain const *deadline, tain *stamp)
 {
   int fd = ipc_stream_nbcoe() ;
   if (fd < 0) return 0 ;
@@ -19,7 +19,7 @@ static inline int nsss_switch_connect (nsss_switch_t *a, char const *path, tain_
   return 1 ;
 }
 
-int nsss_switch_start (nsss_switch_t *a, unsigned int what, char const *path, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_start (nsss_switch_t *a, unsigned int what, char const *path, tain const *deadline, tain *stamp)
 {
   if (!a->held && !nsss_switch_connect(a, path, deadline, stamp)) return 0 ;
   a->held |= (1U << what) ;

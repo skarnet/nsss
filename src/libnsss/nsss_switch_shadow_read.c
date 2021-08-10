@@ -27,7 +27,7 @@
      \0-terminated sp_pwdp
 */
 
-int nsss_switch_shadow_read (buffer *b, struct spwd *sp, stralloc *sa, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_shadow_read (buffer *b, struct spwd *sp, stralloc *sa, tain const *deadline, tain *stamp)
 {
   struct spwd sptmp ;
   uint64_t x ;

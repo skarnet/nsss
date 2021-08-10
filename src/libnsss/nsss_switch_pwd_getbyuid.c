@@ -7,7 +7,7 @@
 #include <nsss/nsss-switch.h>
 #include "nsss-switch-internal.h"
 
-int nsss_switch_pwd_getbyuid (nsss_switch_t *a, struct passwd *pw, stralloc *sa, uid_t uid, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_pwd_getbyuid (nsss_switch_t *a, struct passwd *pw, stralloc *sa, uid_t uid, tain const *deadline, tain *stamp)
 {
   char buf[5] = { NSSS_SWITCH_PWD_GETBYUID } ;
   uint32_pack_big(buf + 1, uid) ;

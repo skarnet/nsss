@@ -13,9 +13,9 @@
 #include <nsss/nsss-switch.h>
 
 extern nsss_switch_t nsss_switch_here ;
-extern int nsss_switch_op (nsss_switch_t *, char, tain_t const *, tain_t *) ;
-extern int nsss_switch_pwd_read (buffer *, struct passwd *, stralloc *, tain_t const *, tain_t *) ;
-extern int nsss_switch_grp_read (buffer *, struct group *, stralloc *, genalloc *, tain_t const *, tain_t *) ;
-extern int nsss_switch_shadow_read (buffer *, struct spwd *, stralloc *, tain_t const *, tain_t *) ;
+extern int nsss_switch_op (nsss_switch_t *, char, tain const *, tain *) ;
+extern int nsss_switch_pwd_read (buffer *, struct passwd *, stralloc *, tain const *, tain *) ;
+extern int nsss_switch_grp_read (buffer *, struct group *, stralloc *, genalloc *, tain const *, tain *) ;
+extern int nsss_switch_shadow_read (buffer *, struct spwd *, stralloc *, tain const *, tain *) ;
 
 #endif

@@ -6,7 +6,7 @@
 #include <nsss/nsss-switch.h>
 #include "nsss-switch-internal.h"
 
-int nsss_switch_shadow_get (nsss_switch_t *a, struct spwd *sp, stralloc *sa, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_shadow_get (nsss_switch_t *a, struct spwd *sp, stralloc *sa, tain const *deadline, tain *stamp)
 {
   char c = NSSS_SWITCH_SHADOW_GET ;
   if (!ipc_timed_send(buffer_fd(&a->b), &c, 1, deadline, stamp)) return 0 ;

@@ -9,7 +9,7 @@
 #include <nsss/nsss-switch.h>
 #include "nsss-switch-internal.h"
 
-int nsss_switch_grp_getbyname (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, char const *name, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_grp_getbyname (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, char const *name, tain const *deadline, tain *stamp)
 {
   char buf[5] = { NSSS_SWITCH_GRP_GETBYNAME } ;
   size_t len = strlen(name) ;

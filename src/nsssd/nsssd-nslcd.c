@@ -48,7 +48,7 @@ struct nslcd_handle_s
   .needdata = 0 \
 }
 
-static tain_t tto = TAIN_INFINITE_RELATIVE ;
+static tain tto = TAIN_INFINITE_RELATIVE ;
 
 void *nsssd_handle_init (void)
 {
@@ -79,7 +79,7 @@ void nsssd_handle_end (void *handle)
   *a = nslcd_handle_zero ;
 }
 
-static int read_uint32 (buffer *b, uint32_t *x, tain_t const *deadline)
+static int read_uint32 (buffer *b, uint32_t *x, tain const *deadline)
 {
   char pack[4] ;
   if (buffer_timed_get_g(b, pack, 4, deadline) < 4) return 0 ;
@@ -87,7 +87,7 @@ static int read_uint32 (buffer *b, uint32_t *x, tain_t const *deadline)
   return 1 ;
 }
 
-static int read_string (buffer *b, size_t *value, stralloc *sa, tain_t const *deadline)
+static int read_string (buffer *b, size_t *value, stralloc *sa, tain const *deadline)
 {
   uint32_t len ;
   if (!read_uint32(b, &len, deadline)) return 0 ;
@@ -99,7 +99,7 @@ static int read_string (buffer *b, size_t *value, stralloc *sa, tain_t const *de
   return 1 ;
 }
 
-static inline int read_stringlist (buffer *b, size_t *head, size_t *n, stralloc *sa, genalloc *ga, tain_t const *deadline)
+static inline int read_stringlist (buffer *b, size_t *head, size_t *n, stralloc *sa, genalloc *ga, tain const *deadline)
 {
   uint32_t i ;
   size_t *p ;
@@ -112,7 +112,7 @@ static inline int read_stringlist (buffer *b, size_t *head, size_t *n, stralloc 
   return 1 ;
 }
 
-static inline int read_header (buffer *b, uint32_t action, tain_t const *deadline)
+static inline int read_header (buffer *b, uint32_t action, tain const *deadline)
 {
   uint32_t x ;
   char pack[8] ;
@@ -124,7 +124,7 @@ static inline int read_header (buffer *b, uint32_t action, tain_t const *deadlin
   return 1 ;
 }
 
-static int read_beginend (buffer *b, tain_t const *deadline)
+static int read_beginend (buffer *b, tain const *deadline)
 {
   uint32_t x ;
   if (!read_uint32(b, &x, deadline)) return -1 ;
@@ -136,7 +136,7 @@ static int read_beginend (buffer *b, tain_t const *deadline)
   }
 }
 
-static int read_eof (buffer *b, tain_t const *deadline)
+static int read_eof (buffer *b, tain const *deadline)
 {
   char c ;
   ssize_t r = buffer_timed_get_g(b, &c, 1, deadline) ;
@@ -145,7 +145,7 @@ static int read_eof (buffer *b, tain_t const *deadline)
   return 1 ;
 }
 
-static int read_endeof(buffer *b, tain_t const *deadline)
+static int read_endeof(buffer *b, tain const *deadline)
 {
   int r = read_beginend(b, deadline) ;
   if (r < 0) return 0 ;
@@ -153,7 +153,7 @@ static int read_endeof(buffer *b, tain_t const *deadline)
   return read_eof(b, deadline) ;
 }
 
-static int read_pw (buffer *b, nsssd_passwd_t *pw, stralloc *sa, tain_t const *deadline)
+static int read_pw (buffer *b, nsssd_passwd_t *pw, stralloc *sa, tain const *deadline)
 {
   uint32_t x ;
   if (!read_string(b, &pw->pw_name, sa, deadline)) return 0 ;
@@ -168,7 +168,7 @@ static int read_pw (buffer *b, nsssd_passwd_t *pw, stralloc *sa, tain_t const *d
   return 1 ;
 }
 
-static int read_gr (buffer *b, nsssd_group_t *gr, stralloc *sa, genalloc *ga, tain_t const *deadline)
+static int read_gr (buffer *b, nsssd_group_t *gr, stralloc *sa, genalloc *ga, tain const *deadline)
 {
   uint32_t x ;
   if (!read_string(b, &gr->gr_name, sa, deadline)) return 0 ;
@@ -179,7 +179,7 @@ static int read_gr (buffer *b, nsssd_group_t *gr, stralloc *sa, genalloc *ga, ta
   return 1 ;
 }
 
-static int read_sp (buffer *b, nsssd_spwd_t *sp, stralloc *sa, tain_t const *deadline)
+static int read_sp (buffer *b, nsssd_spwd_t *sp, stralloc *sa, tain const *deadline)
 {
   uint32_t x ;
   if (!read_string(b, &sp->sp_namp, sa, deadline)) return 0 ;
@@ -201,7 +201,7 @@ static int read_sp (buffer *b, nsssd_spwd_t *sp, stralloc *sa, tain_t const *dea
   return 1 ;
 }
 
-static int nslcd_connect (nslcd_handle_t *a, uint32_t action, struct iovec const *v, unsigned int n, tain_t const *deadline)
+static int nslcd_connect (nslcd_handle_t *a, uint32_t action, struct iovec const *v, unsigned int n, tain const *deadline)
 {
   char pack[8] ;
   int fd = ipc_stream_nbcoe() ;
@@ -240,7 +240,7 @@ int nsssd_pwd_rewind (void *handle)
 
 static inline int pwd_getall (nslcd_handle_t *a)
 {
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[8192] ;
@@ -286,7 +286,7 @@ int nsssd_pwd_getbyuid (void *handle, struct passwd *pw, uid_t uid)
 {
   nslcd_handle_t *a = handle ;
   nsssd_passwd_t pwc ;
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[4096] ;
@@ -314,7 +314,7 @@ int nsssd_pwd_getbyname (void *handle, struct passwd *pw, char const *name)
 {
   nslcd_handle_t *a = handle ;
   nsssd_passwd_t pwc ;
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[4096] ;
@@ -361,7 +361,7 @@ int nsssd_grp_rewind (void *handle)
 
 static inline int grp_getall (nslcd_handle_t *a)
 {
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[8192] ;
@@ -412,7 +412,7 @@ int nsssd_grp_getbygid (void *handle, struct group *gr, gid_t gid)
 {
   nslcd_handle_t *a = handle ;
   nsssd_group_t grc ;
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[4096] ;
@@ -442,7 +442,7 @@ int nsssd_grp_getbyname (void *handle, struct group *gr, char const *name)
 {
   nslcd_handle_t *a = handle ;
   nsssd_group_t grc ;
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[4096] ;
@@ -500,7 +500,7 @@ int nsssd_shadow_rewind (void *handle)
 
 static inline int shadow_getall (nslcd_handle_t *a)
 {
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[8192] ;
@@ -546,7 +546,7 @@ int nsssd_shadow_getbyname (void *handle, struct spwd *sp, char const *name)
 {
   nslcd_handle_t *a = handle ;
   nsssd_spwd_t spc ;
-  tain_t deadline ;
+  tain deadline ;
   int fd ;
   buffer b ;
   char buf[4096] ;
@@ -577,7 +577,7 @@ int main (int argc, char const *const *argv, char const *const *envp)
 {
   PROG = "nsssd-nslcd" ;
   {
-    subgetopt_t l = SUBGETOPT_ZERO ;
+    subgetopt l = SUBGETOPT_ZERO ;
     uint32_t t = 0 ;
     for (;;)
     {

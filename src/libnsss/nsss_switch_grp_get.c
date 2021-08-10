@@ -6,7 +6,7 @@
 #include <nsss/nsss-switch.h>
 #include "nsss-switch-internal.h"
 
-int nsss_switch_grp_get (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_grp_get (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, tain const *deadline, tain *stamp)
 {
   unsigned char c = NSSS_SWITCH_GRP_GET ;
   if (!ipc_timed_send(buffer_fd(&a->b), (char *)&c, 1, deadline, stamp)) return 0 ;

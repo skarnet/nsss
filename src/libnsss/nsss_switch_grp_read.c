@@ -24,7 +24,7 @@
      sequence of n \0-terminated elements in gr_mem
 */
 
-int nsss_switch_grp_read (buffer *b, struct group *gr, stralloc *sa, genalloc *ga, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_grp_read (buffer *b, struct group *gr, stralloc *sa, genalloc *ga, tain const *deadline, tain *stamp)
 {
   struct group grtmp ;
   uint32_t total, len, n, x ;

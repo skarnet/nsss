@@ -7,7 +7,7 @@
 #include <nsss/nsss-switch.h>
 #include "nsss-switch-internal.h"
 
-int nsss_switch_grp_getbygid (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, gid_t gid, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_grp_getbygid (nsss_switch_t *a, struct group *gr, stralloc *sa, genalloc *ga, gid_t gid, tain const *deadline, tain *stamp)
 {
   char buf[5] = { NSSS_SWITCH_GRP_GETBYGID } ;
   uint32_pack_big(buf + 1, gid) ;

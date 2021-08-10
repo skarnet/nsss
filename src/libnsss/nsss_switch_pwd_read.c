@@ -24,7 +24,7 @@
      \0-terminated pw_shell
 */
 
-int nsss_switch_pwd_read (buffer *b, struct passwd *pw, stralloc *sa, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_pwd_read (buffer *b, struct passwd *pw, stralloc *sa, tain const *deadline, tain *stamp)
 {
   struct passwd pwtmp ;
   uint32_t total, len, x ;

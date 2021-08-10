@@ -21,7 +21,7 @@
       min(n, r) * sizeof(gid_t) bytes: the list of gids
   */
 
-static int nsss_switch_grouplist_read (buffer *b, size_t n, size_t *r, gid_t *gids, stralloc *sa, tain_t const *deadline, tain_t *stamp)
+static int nsss_switch_grouplist_read (buffer *b, size_t n, size_t *r, gid_t *gids, stralloc *sa, tain const *deadline, tain *stamp)
 {
   size_t rr ;
   uint64_t res ;
@@ -51,7 +51,7 @@ static int nsss_switch_grouplist_read (buffer *b, size_t n, size_t *r, gid_t *gi
   return 1 ;
 }
 
-int nsss_switch_grp_getlist (nsss_switch_t *a, char const *user, gid_t *gids, size_t n, size_t *r, stralloc *sa, tain_t const *deadline, tain_t *stamp)
+int nsss_switch_grp_getlist (nsss_switch_t *a, char const *user, gid_t *gids, size_t n, size_t *r, stralloc *sa, tain const *deadline, tain *stamp)
 {
   char buf[13] = { NSSS_SWITCH_GRP_GETLIST } ;
   size_t len = strlen(user) ;

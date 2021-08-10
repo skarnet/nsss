@@ -26,7 +26,7 @@ static unsigned int initted = 0 ;
 
 static void get0 (char *s, size_t n)
 {
-  tain_t deadline ;
+  tain deadline ;
   tain_ulong(&deadline, 30) ;
   tain_add_g(&deadline, &deadline) ;
   if (buffer_timed_get_g(buffer_0small, s, n, &deadline) < n)
@@ -36,7 +36,7 @@ static void get0 (char *s, size_t n)
 static void put1 (char const *s, size_t n)
 {
   size_t w = 0 ;
-  tain_t deadline ;
+  tain deadline ;
   tain_ulong(&deadline, 30) ;
   tain_add_g(&deadline, &deadline) ;
   while (!buffer_putall(buffer_1, s, n, &w))
@@ -48,7 +48,7 @@ static void put1 (char const *s, size_t n)
 
 static void flush1 (void)
 {
-  tain_t deadline ;
+  tain deadline ;
   tain_ulong(&deadline, 2) ;
   tain_add_g(&deadline, &deadline) ;
   if (!buffer_timed_flush_g(buffer_1, &deadline))
@@ -461,7 +461,7 @@ int nsssd_main (char const *const *argv, char const *const *envp)
 
   for (;;)
   {
-    tain_t deadline ;
+    tain deadline ;
     char c ;
     tain_add_g(&deadline, &tain_infinite_relative) ;
     if (!buffer_timed_get_g(buffer_0small, &c, 1, &deadline)) break ;

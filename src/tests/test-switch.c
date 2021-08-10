@@ -18,7 +18,7 @@ int main (void)
   nsss_switch_t a = NSSS_SWITCH_ZERO ;
   stralloc sa = STRALLOC_ZERO ;
   genalloc ga = GENALLOC_ZERO ;
-  tain_t deadline ;
+  tain deadline ;
   PROG = "test-switch" ;
   tain_now_set_stopwatch_g() ;
   tain_from_millisecs(&deadline, 10000) ;
