@@ -19,6 +19,6 @@ int nsss_switch_pwd_getbyname (nsss_switch_t *a, struct passwd *pw, stralloc *sa
   if (!ipc_timed_sendv(buffer_fd(&a->b), v, 2, deadline, stamp)) return 0 ;
   if (!buffer_timed_get(&a->b, &buf[0], 1, deadline, stamp)) return 0 ;
   if ((unsigned char)buf[0] == 255) return 0 ;
-  if (buf[0]) return (errno = buf[0], 0) ;
+  if (buf[0]) return (errno = (unsigned char)buf[0], 0) ;
   return nsss_switch_pwd_read(&a->b, pw, sa, deadline, stamp) ;
 }

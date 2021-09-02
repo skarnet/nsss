@@ -8,9 +8,9 @@
 
 int nsss_switch_op (nsss_switch_t *a, char op, tain const *deadline, tain *stamp)
 {
-  char c ;
+  unsigned char c ;
   if (!ipc_timed_send(buffer_fd(&a->b), &op, 1, deadline, stamp)) return 0 ;
-  if (!buffer_timed_get(&a->b, &c, 1, deadline, stamp)) return 0 ;
+  if (!buffer_timed_get(&a->b, (char *)&c, 1, deadline, stamp)) return 0 ;
   if (c) return (errno = c, 0) ;
   return 1 ;
 }
