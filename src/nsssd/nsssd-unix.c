@@ -1,6 +1,7 @@
 /* ISC license. */
 
 #include <skalibs/strerr2.h>
+
 #include <nsss/pwd-unix.h>
 #include <nsss/grp-unix.h>
 #include <nsss/shadow-unix.h>
@@ -11,11 +12,10 @@ void *nsssd_handle_init (void)
   return 0 ;
 }
 
-int nsssd_handle_start (void *handle, char const *const *argv, char const *const *envp)
+int nsssd_handle_start (void *handle, char const *const *argv)
 {
   (void)handle ;
   (void)argv ;
-  (void)envp ;
   return 1 ;
 }
 
@@ -169,8 +169,9 @@ void nsssd_shadow_end (void *handle)
   (void)handle ;
 }
 
-int main (int argc, char const *const *argv, char const *const *envp)
+int main (int argc, char const *const *argv)
 {
   PROG = "nsssd-unix" ;
-  return nsssd_main(argv+1, envp) ;
+  (void)argc ;
+  return nsssd_main(argv+1) ;
 }

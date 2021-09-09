@@ -33,6 +33,7 @@ nsss_switch_end.o
 nsss_switch_endgrent.o
 nsss_switch_endpwent.o
 nsss_switch_endspent.o
+nsss_switch_enumerator.o
 nsss_switch_getgrent.o
 nsss_switch_getgrent_r.o
 nsss_switch_getgrgid.o
@@ -57,7 +58,6 @@ nsss_switch_grp_getbyname.o
 nsss_switch_grp_getlist.o
 nsss_switch_grp_read.o
 nsss_switch_grp_rewind.o
-nsss_switch_here.o
 nsss_switch_op.o
 nsss_switch_pwd_end.o
 nsss_switch_pwd_get.o
@@ -65,6 +65,11 @@ nsss_switch_pwd_getbyname.o
 nsss_switch_pwd_getbyuid.o
 nsss_switch_pwd_read.o
 nsss_switch_pwd_rewind.o
+nsss_switch_query.o
+nsss_switch_query_mutex.o
+nsss_switch_query_start.o
+nsss_switch_send.o
+nsss_switch_sendv.o
 nsss_switch_setgrent.o
 nsss_switch_setpwent.o
 nsss_switch_setspent.o
@@ -73,7 +78,9 @@ nsss_switch_shadow_get.o
 nsss_switch_shadow_getbyname.o
 nsss_switch_shadow_read.o
 nsss_switch_shadow_rewind.o
+nsss_switch_set_timeout.o
 nsss_switch_start.o
+nsss_switch_startf.o
 nsss_unix_end.o
 nsss_unix_endgrent.o
 nsss_unix_endpwent.o

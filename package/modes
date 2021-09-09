@@ -1,2 +1,3 @@
 nsssd-unix	0755
 nsssd-nslcd	0755
+nsssd-switch	0755

@@ -1,22 +1,17 @@
 /* ISC license. */
 
 #include <skalibs/genalloc.h>
+
 #include <nsss/config.h>
 #include <nsss/grp-switch.h>
 #include <nsss/nsss-switch.h>
 #include "nsss-internal.h"
+#include "nsss-switch-internal.h"
 
 struct group *nsss_switch_getgrnam (char const *name)
 {
-  nsss_switch_t a = NSSS_SWITCH_ZERO ;
-  if (!nsss_switch_start(&a, NSSS_SWITCH_GRP, NSSS_NSSSD_PATH, 0, 0)) return 0 ;
+  if (!nsss_switch_query_start(NSSS_NSSSD_PATH, NSSS_SWITCH_GRP, 30000, 0, 0)) return 0 ;
   nsss_grp_sa_here.len = 0 ;
   genalloc_setlen(char *, &nsss_grp_ga_here, 0) ;
-  if (!nsss_switch_grp_getbyname(&a, &nsss_grp_here, &nsss_grp_sa_here, &nsss_grp_ga_here, name, 0, 0))
-  {
-    nsss_switch_end(&a, NSSS_SWITCH_GRP) ;
-    return 0 ;
-  }
-  nsss_switch_end(&a, NSSS_SWITCH_GRP) ;
-  return &nsss_grp_here ;
+  return nsss_switch_grp_getbyname(&nsss_switch_query, &nsss_grp_here, &nsss_grp_sa_here, &nsss_grp_ga_here, name, 0, 0) ? &nsss_grp_here : 0 ;
 }

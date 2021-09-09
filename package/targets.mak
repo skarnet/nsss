@@ -1,6 +1,7 @@
 BIN_TARGETS := \
 nsssd-unix \
-nsssd-nslcd
+nsssd-nslcd \
+nsssd-switch
 
 LIBEXEC_TARGETS :=
 

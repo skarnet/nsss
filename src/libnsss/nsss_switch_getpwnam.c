@@ -4,17 +4,11 @@
 #include <nsss/pwd-switch.h>
 #include <nsss/nsss-switch.h>
 #include "nsss-internal.h"
+#include "nsss-switch-internal.h"
 
 struct passwd *nsss_switch_getpwnam (char const *name)
 {
-  nsss_switch_t a = NSSS_SWITCH_ZERO ;
-  if (!nsss_switch_start(&a, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) return 0 ;
+  if (!nsss_switch_query_start(NSSS_NSSSD_PATH, NSSS_SWITCH_PWD, 30000, 0, 0)) return 0 ;
   nsss_pwd_sa_here.len = 0 ;
-  if (!nsss_switch_pwd_getbyname(&a, &nsss_pwd_here, &nsss_pwd_sa_here, name, 0, 0))
-  {
-    nsss_switch_end(&a, NSSS_SWITCH_PWD) ;
-    return 0 ;
-  }
-  nsss_switch_end(&a, NSSS_SWITCH_PWD) ;
-  return &nsss_pwd_here ;
+  return nsss_switch_pwd_getbyname(&nsss_switch_query, &nsss_pwd_here, &nsss_pwd_sa_here, name, 0, 0) ? &nsss_pwd_here : 0 ;
 }

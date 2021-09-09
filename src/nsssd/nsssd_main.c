@@ -1,5 +1,6 @@
 /* ISC license. */
 
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -23,12 +24,13 @@
 #include <nsss/nsssd.h>
 
 static unsigned int initted = 0 ;
+static tain tto = TAIN_INFINITE_RELATIVE ;
+static tain outertto = TAIN_INFINITE_RELATIVE ;
 
 static void get0 (char *s, size_t n)
 {
   tain deadline ;
-  tain_ulong(&deadline, 30) ;
-  tain_add_g(&deadline, &deadline) ;
+  tain_add_g(&deadline, &tto) ;
   if (buffer_timed_get_g(buffer_0small, s, n, &deadline) < n)
     strerr_diefu1sys(111, "read from stdin") ;
 }
@@ -37,8 +39,7 @@ static void put1 (char const *s, size_t n)
 {
   size_t w = 0 ;
   tain deadline ;
-  tain_ulong(&deadline, 30) ;
-  tain_add_g(&deadline, &deadline) ;
+  tain_add_g(&deadline, &tto) ;
   while (!buffer_putall(buffer_1, s, n, &w))
   {
     if (!buffer_timed_flush_g(buffer_1, &deadline))
@@ -49,8 +50,7 @@ static void put1 (char const *s, size_t n)
 static void flush1 (void)
 {
   tain deadline ;
-  tain_ulong(&deadline, 2) ;
-  tain_add_g(&deadline, &deadline) ;
+  tain_add_g(&deadline, &tto) ;
   if (!buffer_timed_flush_g(buffer_1, &deadline))
     strerr_diefu1sys(111, "write to stdout") ;
 }
@@ -131,6 +131,16 @@ static inline void print_sp (struct spwd const *sp)
   flush1() ;
 }
 
+static inline void do_set_timeout (void)
+{
+  uint32_t t ;
+  char buf[4] ;
+  get0(buf, 4) ;
+  uint32_unpack_big(buf, &t) ;
+  if (t) tain_from_millisecs(&outertto, t) ;
+  else outertto = tain_infinite_relative ;
+  answer(0) ;
+}
 
 static inline void do_pwend (void *a)
 {
@@ -402,6 +412,7 @@ static inline void do_spget (void *a)
   }
   print_sp(&sp) ;
 }
+
 static inline void do_spnam (void *a)
 {
   struct spwd sp ;
@@ -432,7 +443,7 @@ static inline void do_spnam (void *a)
 }
 
 
-int nsssd_main (char const *const *argv, char const *const *envp)
+int nsssd_main (char const *const *argv)
 {
   void *a ;
 
@@ -452,22 +463,34 @@ int nsssd_main (char const *const *argv, char const *const *envp)
     if (setuid(uid) == -1) strerr_diefu2sys(111, "setuid to ", x) ;
   }
 
+  {
+    char const *x = getenv("NSSSD_TIMEOUT") ;
+    if (x)
+    {
+      uint32_t t ;
+      if (!uint320_scan(x, &t))
+        strerr_dief1x(100, "invalid NSSSD_TIMEOUT") ;
+      if (t) tain_from_millisecs(&tto, t) ;
+    }
+  }
+
   tain_now_set_stopwatch_g() ;                                            
   a = nsssd_handle_init() ;
   if (ndelay_on(0) < 0) strerr_diefu1sys(111, "set stdin non-blocking") ;
   tain_now_g() ;
-  if (!nsssd_handle_start(a, argv, envp))
+  if (!nsssd_handle_start(a, argv))
     strerr_diefu1sys(111, "nsssd_handle_start") ;
 
   for (;;)
   {
     tain deadline ;
     char c ;
-    tain_add_g(&deadline, &tain_infinite_relative) ;
+    tain_add_g(&deadline, &outertto) ;
     if (!buffer_timed_get_g(buffer_0small, &c, 1, &deadline)) break ;
     errno = 0 ;
     switch (c)
     {
+      case NSSS_SWITCH_SET_TIMEOUT : do_set_timeout() ; break ;
       case NSSS_SWITCH_PWD_END : do_pwend(a) ; break ;
       case NSSS_SWITCH_PWD_REWIND : do_pwrewind(a) ; break ;
       case NSSS_SWITCH_PWD_GET : do_pwget(a) ; break ;

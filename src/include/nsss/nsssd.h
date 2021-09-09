@@ -49,7 +49,7 @@ struct nsssd_spwd_s
 
 /* Functions provided by libnsssd */
 
-extern int nsssd_main (char const *const *, char const *const *) ;
+extern int nsssd_main (char const *const *) ;
 extern void nsssd_passwd_convert (struct passwd *, nsssd_passwd_t const *, char const *) ;
 extern void nsssd_group_convert (struct group *, char **, nsssd_group_t const *, char const *, size_t const *) ;
 extern void nsssd_spwd_convert (struct spwd *, nsssd_spwd_t const *, char const *) ;
@@ -58,7 +58,7 @@ extern void nsssd_spwd_convert (struct spwd *, nsssd_spwd_t const *, char const 
 /* Functions that must be provided by the backend */
 
 extern void *nsssd_handle_init (void) ;
-extern int nsssd_handle_start (void *, char const *const *, char const *const *) ;
+extern int nsssd_handle_start (void *, char const *const *) ;
 extern void nsssd_handle_end (void *) ;
 
 extern int nsssd_pwd_start (void *) ;

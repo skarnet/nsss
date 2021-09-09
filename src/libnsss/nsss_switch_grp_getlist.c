@@ -13,6 +13,7 @@
 #include <skalibs/unix-timed.h>
 
 #include <nsss/nsss-switch.h>
+#include "nsss-switch-internal.h"
 
  /*
     Expects:
@@ -59,7 +60,7 @@ int nsss_switch_grp_getlist (nsss_switch_t *a, char const *user, gid_t *gids, si
   if (len > NSSS_SWITCH_NAME_MAXLEN - 1) return (errno = EINVAL, 0) ;
   uint64_pack_big(buf + 1, n) ;
   uint32_pack_big(buf + 9, len + 1) ;
-  if (!ipc_timed_sendv(buffer_fd(&a->b), v, 2, deadline, stamp)) return 0 ;
+  if (!nsss_switch_sendv(a, v, 2, deadline, stamp)) return 0 ;
   if (!buffer_timed_get(&a->b, &buf[0], 1, deadline, stamp)) return 0 ;
   if (buf[0]) return (errno = (unsigned char)buf[0], 0) ;
   return nsss_switch_grouplist_read(&a->b, n, r, gids, sa, deadline, stamp) ;

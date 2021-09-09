@@ -18,9 +18,9 @@ int nsss_all_getgrent_r (struct group *gr, char *buf, size_t buflen, struct grou
   genalloc ga = GENALLOC_ZERO ;
   int e = errno ;
   if (nsss_all_errno) goto fallback ;
-  if (!nsss_switch_start(&nsss_switch_here, NSSS_SWITCH_GRP, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
+  if (!nsss_switch_start(&nsss_switch_enumerator, NSSS_SWITCH_GRP, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
   errno = 0 ;
-  if (!nsss_switch_grp_get(&nsss_switch_here, &gr2, &sa, &ga, 0, 0))
+  if (!nsss_switch_grp_get(&nsss_switch_enumerator, &gr2, &sa, &ga, 0, 0))
   {
     *grp = 0 ;
     if (!errno) errno = ENOENT ;

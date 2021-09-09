@@ -16,9 +16,9 @@ int nsss_all_getpwent_r (struct passwd *pw, char *buf, size_t buflen, struct pas
   stralloc sa = STRALLOC_ZERO ;
   int e = errno ;
   if (nsss_all_errno) goto fallback ;
-  if (!nsss_switch_start(&nsss_switch_here, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
+  if (!nsss_switch_start(&nsss_switch_enumerator, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
   errno = 0 ;
-  if (!nsss_switch_pwd_get(&nsss_switch_here, &pw2, &sa, 0, 0))
+  if (!nsss_switch_pwd_get(&nsss_switch_enumerator, &pw2, &sa, 0, 0))
   {
     *pwp = 0 ;
     if (!errno) errno = ENOENT ;

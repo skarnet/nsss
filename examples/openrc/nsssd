@@ -2,7 +2,7 @@
 
 name="nsssd"
 command="s6-envuidgid"
-command_args="nsss s6-ipcserver -U -- /run/service/nsssd/s nsssd-unix"
+command_args="nsss s6-ipcserver -U -- /run/service/nsssd/s nsssd-switch 0 nsssd-nslcd '' 0 nsssd-unix ''"
 command_background=yes
 pidfile="/run/service/nsssd/nsssd.pid"
 start_stop_daemon_args="-d /run/service/nsssd"

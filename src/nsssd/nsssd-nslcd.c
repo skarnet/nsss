@@ -56,7 +56,7 @@ void *nsssd_handle_init (void)
   return &a ;
 }
 
-int nsssd_handle_start (void *handle, char const *const *argv, char const *const *envp)
+int nsssd_handle_start (void *handle, char const *const *argv)
 {
   nslcd_handle_t *a = handle ;
   if (!argv[0]) strerr_dieusage(100, USAGE) ;
@@ -339,6 +339,7 @@ int nsssd_pwd_getbyname (void *handle, struct passwd *pw, char const *name)
 
 void nsssd_pwd_end (void *handle)
 {
+  (void)handle ;
 }
 
 int nsssd_grp_start (void *handle)
@@ -480,6 +481,7 @@ int nsssd_grp_getlist (void *handle, char const *user, gid_t *gids, size_t n, si
 
 void nsssd_grp_end (void *handle)
 {
+  (void)handle ;
 }
 
 int nsssd_shadow_start (void *handle)
@@ -571,9 +573,10 @@ int nsssd_shadow_getbyname (void *handle, struct spwd *sp, char const *name)
 
 void nsssd_shadow_end (void *handle)
 {
+  (void)handle ;
 }
 
-int main (int argc, char const *const *argv, char const *const *envp)
+int main (int argc, char const *const *argv)
 {
   PROG = "nsssd-nslcd" ;
   {
@@ -593,5 +596,5 @@ int main (int argc, char const *const *argv, char const *const *envp)
     if (t) tain_from_millisecs(&tto, t) ;
   }
 
-  return nsssd_main(argv, envp) ;
+  return nsssd_main(argv) ;
 }

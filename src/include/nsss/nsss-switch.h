@@ -6,10 +6,12 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <unistd.h>
+
 #include <skalibs/tai.h>
 #include <skalibs/buffer.h>
 #include <skalibs/stralloc.h>
 #include <skalibs/genalloc.h>
+
 #include <nsss/pwd-switch.h>
 #include <nsss/grp-switch.h>
 #include <nsss/shadow-switch.h>
@@ -26,27 +28,38 @@ typedef struct nsss_switch_s nsss_switch_t, *nsss_switch_t_ref ;
 struct nsss_switch_s
 {
   unsigned int held ;
+  char const *path ;
   buffer b ;
   char buf[NSSS_SWITCH_BUFSIZE] ;
 } ;
-#define NSSS_SWITCH_ZERO { .held = 0, .b = BUFFER_ZERO }
+#define NSSS_SWITCH_ZERO { .held = 0, .path = 0, .b = BUFFER_ZERO }
 
-#define NSSS_SWITCH_PWD 0
-#define NSSS_SWITCH_GRP 1
-#define NSSS_SWITCH_SHADOW 2
+#define NSSS_SWITCH_PWD 1
+#define NSSS_SWITCH_GRP 2
+#define NSSS_SWITCH_SHADOW 4
 
 extern int nsss_switch_start (nsss_switch_t *, unsigned int, char const *, tain const *, tain *) ;
 #define nsss_switch_start_g(a, what, s, deadline) nsss_switch_start(a, what, s, (deadline), &STAMP)
+extern int nsss_switch_startf (nsss_switch_t *, unsigned int, char const *const *, tain const *, tain *) ;
+#define nsss_switch_startf_g(a, what, argv, deadline) nsss_switch_startf(a, what, argv, (deadline), &STAMP)
 extern void nsss_switch_end (nsss_switch_t *, unsigned int) ;
+
+
+ /* Internal management */
+
+#define NSSS_SWITCH_SET_TIMEOUT '\001'
+
+extern int nsss_switch_set_timeout (nsss_switch_t *, unsigned int, tain const *, tain *) ;
+#define nsss_switch_set_timeout_g(a, timeout, deadline) nsss_switch_set_timeout(a, timeout, (deadline), &STAMP)
 
 
  /* Password */
 
-#define NSSS_SWITCH_PWD_END '\0'
-#define NSSS_SWITCH_PWD_REWIND '\001'
-#define NSSS_SWITCH_PWD_GET '\002'
-#define NSSS_SWITCH_PWD_GETBYNAME '\003'
-#define NSSS_SWITCH_PWD_GETBYUID '\004'
+#define NSSS_SWITCH_PWD_END '\010'
+#define NSSS_SWITCH_PWD_REWIND '\011'
+#define NSSS_SWITCH_PWD_GET '\012'
+#define NSSS_SWITCH_PWD_GETBYNAME '\013'
+#define NSSS_SWITCH_PWD_GETBYUID '\014'
 
 extern int nsss_switch_pwd_end (nsss_switch_t *, tain const *, tain *) ;
 #define nsss_switch_pwd_end_g(a, deadline) nsss_switch_pwd_end(a, (deadline), &STAMP)

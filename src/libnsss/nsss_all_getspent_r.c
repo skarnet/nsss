@@ -16,9 +16,9 @@ int nsss_all_getspent_r (struct spwd *sp, char *buf, size_t buflen, struct spwd 
   stralloc sa = STRALLOC_ZERO ;
   int e = errno ;
   if (nsss_all_errno) goto fallback ;
-  if (!nsss_switch_start(&nsss_switch_here, NSSS_SWITCH_SHADOW, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
+  if (!nsss_switch_start(&nsss_switch_enumerator, NSSS_SWITCH_SHADOW, NSSS_NSSSD_PATH, 0, 0)) goto efallback ;
   errno = 0 ;
-  if (!nsss_switch_shadow_get(&nsss_switch_here, &sp2, &sa, 0, 0))
+  if (!nsss_switch_shadow_get(&nsss_switch_enumerator, &sp2, &sa, 0, 0))
   {
     *spp = 0 ;
     if (!errno) errno = ENOENT ;

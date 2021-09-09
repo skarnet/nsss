@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>nsss: the nsssd-switch program</title>
+    <meta name="Description" content="nsss: the nsssd-switch program" />
+    <meta name="Keywords" content="nsss name service switch nsssd unix daemon service nsssd-switch" />
+    <!-- <link rel="stylesheet" type="text/css" href="//skarnet.org/default.css" /> -->
+  </head>
+<body>
+
+<p>
+<a href="index.html">nsss</a><br />
+<a href="//skarnet.org/software/">Software</a><br />
+<a href="//skarnet.org/">skarnet.org</a>
+</p>
+
+<h1> The nsssd-switch program </h1>
+
+<p>
+<tt>nsssd-switch</tt> is a daemon providing a backend for clients using the
+<a href="libnsss/">nsss library</a> - more precisely, clients using
+the <a href="libnsss/nsss-all.html">nsss-all</a> or
+the <a href="libnsss/nsss-switch.html">nsss-switch</a> functions.
+</p>
+
+<p>
+ The <tt>nsssd-switch</tt> backend is the real point of the <a href="index.html">nsss</a>
+package: it allows a complex configuration using different other backends,
+similarly to the <a href="nsswitch.html">/etc/nsswitch.conf</a> mechanism
+but without its drawbacks. It accomplishes this by reading its backend
+configuration on the command line.
+</p>
+
+<h2> Interface </h2>
+
+<pre>
+     s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch <em>bitfield1</em> <em>backend1...</em> "" <em>bitfield2</em> <em>backend2...</em> "" ...
+</pre>
+
+<p>
+ or, in an <a href="//skarnet.org/software/execline/">execline</a> script:
+</p>
+
+<pre>
+     s6-ipcserver -l0 /run/service/nsssd/s
+     nsssd-switch
+       <em>bitfield1</em> { <em>backend1...</em> }
+       <em>bitfield2</em> { <em>backend2...</em> }
+       ...
+</pre>
+
+<ul>
+ <li> <tt>nsssd-switch</tt>
+</ul>
+
+
+<h2> Notes </h2>
+
+<p>
+ nsssd-switch is not meant to be called directly; instead, it is expected to be run from
+a script as a part of a "nsssd"
+<a href="//skarnet.org/software/s6/localservice.html">local service</a>.
+</p>
+
+<p>
+ The <tt>examples/</tt> subdirectory of the nsss package provides examples
+on how to run such a service.
+ The simplest way to do so, for testing purposes, is a command line such as:
+</p>
+<pre>s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch 0 nsssd-unix "" </pre>
+
+<p>
+<tt>/run/service/nsssd/s</tt> is the default place where nsss's
+implementation of the <tt>pwd.h</tt>, <tt>grp.h</tt> and <tt>shadow.h</tt>
+functions expects the nsssd
+service to be. It can be changed at nsss build time by giving the
+<tt>--with-nsssd-socket=PATH</tt> option to configure.
+</p>
+
+<p>
+ nsssd-switch does not listen to the socket itself: it reads from its
+standard input and writes to its standard output. It relies
+on a superserver such as
+<a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
+to manage connections to the socket. An instance of nsssd-switch is run
+for every client connection.
+</p>
+
+<p>
+ If fine-grained authorizations are required (only allowing
+certain users and groups to connect to the service), the superserver
+can be configured to enforce them.
+</p>
+
+<p>
+ nsssd-switch does not need to run as root, provided it has all the
+permissions needed by the backends it spawns.
+It is recommended to create a <em>nsss</em> user and group, dedicated to
+the nsssd service, and run the superserver as this user and group.
+</p>
+
+</body>
+</html>

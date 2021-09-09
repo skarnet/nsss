@@ -22,6 +22,7 @@ static inline int nsss_switch_connect (nsss_switch_t *a, char const *path, tain 
 int nsss_switch_start (nsss_switch_t *a, unsigned int what, char const *path, tain const *deadline, tain *stamp)
 {
   if (!a->held && !nsss_switch_connect(a, path, deadline, stamp)) return 0 ;
-  a->held |= (1U << what) ;
+  a->held |= what & 0x7u ;
+  a->path = path ;
   return 1 ;
 }

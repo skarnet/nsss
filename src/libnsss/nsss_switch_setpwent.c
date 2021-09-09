@@ -7,6 +7,6 @@
 
 void nsss_switch_setpwent (void)
 {
-  if (!nsss_switch_start(&nsss_switch_here, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) return ;
-  nsss_switch_pwd_rewind(&nsss_switch_here, 0, 0) ;
+  if (!nsss_switch_start(&nsss_switch_enumerator, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) return ;
+  nsss_switch_pwd_rewind(&nsss_switch_enumerator, 0, 0) ;
 }

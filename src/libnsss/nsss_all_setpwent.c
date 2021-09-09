@@ -11,8 +11,8 @@
 void nsss_all_setpwent (void)
 {
   int e = errno ;
-  if (!nsss_switch_start(&nsss_switch_here, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) goto fallback ;
-  nsss_switch_pwd_rewind(&nsss_switch_here, 0, 0) ;
+  if (!nsss_switch_start(&nsss_switch_enumerator, NSSS_SWITCH_PWD, NSSS_NSSSD_PATH, 0, 0)) goto fallback ;
+  nsss_switch_pwd_rewind(&nsss_switch_enumerator, 0, 0) ;
   return ;
 
  fallback:

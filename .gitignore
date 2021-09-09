@@ -8,4 +8,5 @@
 /libnsssd.so.xyzzy
 /nsssd-unix
 /nsssd-nslcd
+/nsssd-switch
 /test-*
