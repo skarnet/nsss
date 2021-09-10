@@ -61,7 +61,7 @@ configures all its backends. The script is a series of directives:
    <li> First a <em>bitfield</em> is read: it's a number between 0 and 7.
 This number determines how the backend will behave in case of failure. </li>
    <li> Then a <em>backend</em> is read: it is a full command-line, terminated
-by an empty word. (In an <a href="//skarnet.org/software/execline/execlineb.html>execline</a>
+by an empty word. (In an <a href="//skarnet.org/software/execline/execlineb.html">execline</a>
 script, the <em>backend</em> is a block, without the empty word.) The command
 line is an implementation of the server side of the nsss protocol: for instance,
 <tt>nsssd-unix ""</tt> declares a Unix backend with user, group and shadow
@@ -165,7 +165,7 @@ a script as a part of a "nsssd"
  The <tt>examples/</tt> subdirectory of the nsss package provides examples
 on how to run such a service.
  The simplest way to do so, for testing purposes, is a command line such as:
-<pre>s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch 0 nsssd-unix "" </pre>
+<code>s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch 0 nsssd-unix "" </code>
 </li>
 
 <li>
@@ -183,7 +183,7 @@ on a superserver such as
 <a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
 to manage connections to the socket. An instance of nsssd-switch is run
 for every client connection.
-</p>
+</li>
 
 <li>
  If fine-grained authorizations are required (only allowing
