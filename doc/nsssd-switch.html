@@ -36,7 +36,7 @@ configuration on the command line.
 <h2> Interface </h2>
 
 <pre>
-     s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch <em>bitfield1</em> <em>backend1...</em> "" <em>bitfield2</em> <em>backend2...</em> "" ...
+     s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch [ -t <em>timeout</em> ] <em>bitfield1</em> <em>backend1...</em> "" <em>bitfield2</em> <em>backend2...</em> "" ...
 </pre>
 
 <p>
@@ -52,35 +52,132 @@ configuration on the command line.
 </pre>
 
 <ul>
- <li> <tt>nsssd-switch</tt>
+ <li> <tt>nsssd-switch</tt> is normally spawned by a super-server like
+<a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>.
+There is one instance of <tt>nsssd-switch</tt> per client connection. </li>
+ <li> <tt>nsssd-switch</tt> interprets its command line as a script that
+configures all its backends. The script is a series of directives:
+  <ol>
+   <li> First a <em>bitfield</em> is read: it's a number between 0 and 7.
+This number determines how the backend will behave in case of failure. </li>
+   <li> Then a <em>backend</em> is read: it is a full command-line, terminated
+by an empty word. (In an <a href="//skarnet.org/software/execline/execlineb.html>execline</a>
+script, the <em>backend</em> is a block, without the empty word.) The command
+line is an implementation of the server side of the nsss protocol: for instance,
+<tt>nsssd-unix ""</tt> declares a Unix backend with user, group and shadow
+credentials in <tt>/etc/passwd</tt>, <tt>/etc/group</tt> and <tt>/etc/shadow</tt>.
+</li>
+  </ol> </li>
+ <li> <tt>nsssd-switch</tt> spawns all its declared backends. </li>
+ <li> It then reads queries from its client. It transmits every query to
+its backends, in the order given on the command line. A success means
+that the answer is immediately returned to the client, and no further
+backend is contacted. A failure can be handled in different ways, depending
+on the type of failure and on the <em>bitfield</em> associated to the
+<em>backend</em>. </li>
+ <li> <tt>nsssd-switch</tt> (and all the backends it spawned) exits when
+the client connection is closed, or in some cases, after a timeout. </li>
 </ul>
 
+<h2> Exit codes </h2>
+
+<p>
+ These exit codes are not important because only the super-server can see them.
+</p>
+
+<ul>
+ <li> 0: normal exit or timeout while waiting for a client query </li>
+ <li> 100: wrong usage </li>
+ <li> 111: system call failed or timeout during a nsss protocol exchange </li>
+</ul>
+
+<h2> Options </h2>
+
+<ul>
+ <li> <tt>-t&nbsp;<em>timeout</em></tt>&nbsp;: enforce a limit of
+<em>timeout</em> milliseconds when communicating with a backend. If a
+backend fails to answer a query under <em>timeout</em> milliseconds,
+<tt>nsssd-switch</tt> will return a failure code to the client, and
+the backend will be considered permanently failed. The default is 0,
+meaning no such timeout - backends can take as much time as they want
+to answer queries. </li>
+</ul>
+
+<h2> Environment variables </h2>
+
+<p>
+ <tt>nsssd-switch</tt> can read a number <em>x</em> in the NSSSD_TIMEOUT
+environment variable. If this variable is present and valid, it means that
+<tt>nsssd-switch</tt> will die if <em>x</em> milliseconds elapse without
+the client reading or writing during a nsss protocol exchange, which usually
+means the client either is not speaking the protocol correctly or has become
+unresponsive. It is a safety measure to avoid having <tt>nsssd</tt> processes
+sticking around forever when a client is buggy.
+</p>
+
+<p>
+ Note that the NSSSD_TIMEOUT variable refers to a timeout during an exchange
+with the <em>client</em>, while the argument to the <tt>-t</tt> option refers
+to a timeout enforced on the <em>backends</em>.
+</p>
+
+<h2> Bitfields </h2>
+
+<p>
+ A <em>bitfield</em> is a value between 0 and 7, representing 3 bits. If a
+bit is 0, it means that the query resolution will <em>continue to the next
+backend</em> if the corresponding failure condition is triggered. If the
+bit is 1, it means that the failure will instantly be reported to the client
+and the query will not be transmitted to the next backend in the chain.
+</p>
+
+<ul>
+ <li> Bit 0: the backend is in a state of permanent failure: it failed to start,
+it crashed, or it timed out. </li>
+ <li> Bit 1: the backend answered the query with a failure. </li>
+ <li> Bit 2: the requested entry was not found in the backend's database. </li>
+</ul>
+
+<p>
+ So, for instance, a bitfield of 5 means: report failure to the client if the
+current backend is in a failed state or if a requested entry cannot be found.
+Proceed to the next backend if the current backend reports failure when
+processing a query.
+</p>
+
+<p>
+ This format allows the administrator to configure various fallback strategies.
+Note that in case of success, the requested data is immediately returned to the
+client. <tt>nsssd-switch</tt> does not provide the equivalent of the <tt>merge</tt>
+directive in <tt>/etc/nsswitch.conf</tt>.
+</p>
 
 <h2> Notes </h2>
 
-<p>
- nsssd-switch is not meant to be called directly; instead, it is expected to be run from
+<ul>
+<li>
+ <tt>nsssd-switch</tt> is not meant to be called directly; instead, it is expected to be run from
 a script as a part of a "nsssd"
 <a href="//skarnet.org/software/s6/localservice.html">local service</a>.
-</p>
+</li>
 
-<p>
+<li>
  The <tt>examples/</tt> subdirectory of the nsss package provides examples
 on how to run such a service.
  The simplest way to do so, for testing purposes, is a command line such as:
-</p>
 <pre>s6-ipcserver -l0 /run/service/nsssd/s nsssd-switch 0 nsssd-unix "" </pre>
+</li>
 
-<p>
+<li>
 <tt>/run/service/nsssd/s</tt> is the default place where nsss's
 implementation of the <tt>pwd.h</tt>, <tt>grp.h</tt> and <tt>shadow.h</tt>
 functions expects the nsssd
 service to be. It can be changed at nsss build time by giving the
 <tt>--with-nsssd-socket=PATH</tt> option to configure.
-</p>
+</li>
 
-<p>
- nsssd-switch does not listen to the socket itself: it reads from its
+<li>
+ <tt>nsssd-switch</tt> does not listen to the socket itself: it reads from its
 standard input and writes to its standard output. It relies
 on a superserver such as
 <a href="//skarnet.org/software/s6/s6-ipcserver.html">s6-ipcserver</a>
@@ -88,18 +185,24 @@ to manage connections to the socket. An instance of nsssd-switch is run
 for every client connection.
 </p>
 
-<p>
+<li>
  If fine-grained authorizations are required (only allowing
 certain users and groups to connect to the service), the superserver
 can be configured to enforce them.
-</p>
+</li>
 
-<p>
- nsssd-switch does not need to run as root, provided it has all the
+<li>
+ <tt>nsssd-switch</tt> does not need to run as root, provided it has all the
 permissions needed by the backends it spawns.
 It is recommended to create a <em>nsss</em> user and group, dedicated to
 the nsssd service, and run the superserver as this user and group.
-</p>
+</li>
+
+<li>
+ <tt>nsssd-switch</tt> is limited to 8 backends. If you need more, you can
+chain another <tt>nsssd-switch</tt> invocation as the 8th backend,
+which gives you another batch of 8.
+</li>
 
 </body>
 </html>

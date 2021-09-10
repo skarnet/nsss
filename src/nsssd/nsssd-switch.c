@@ -18,7 +18,7 @@
 #define USAGE "nsssd-switch bitfield1 backend1... \"\" bitfield2 backend2... \"\""
 #define dieusage() strerr_dieusage(100, USAGE)
 
-#define MAX_BACKENDS 16
+#define MAX_BACKENDS 8
 
 static tain tto = TAIN_INFINITE_RELATIVE ;
 static stralloc storagesa = STRALLOC_ZERO ;
@@ -148,6 +148,11 @@ int nsssd_pwd_rewind (void *handle)
     }
     tain_add_g(&deadline, &tto) ;
     if (nsss_switch_pwd_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & 2) return 0 ;
   }
   return 0 ;
@@ -168,6 +173,11 @@ int nsssd_pwd_get (void *handle, struct passwd *pw)
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_pwd_get_g(&a->tab[i].handle, pw, &storagesa, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -188,6 +198,11 @@ int nsssd_pwd_getbyuid (void *handle, struct passwd *pw, uid_t uid)
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_pwd_getbyuid_g(&a->tab[i].handle, pw, &storagesa, uid, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -208,6 +223,11 @@ int nsssd_pwd_getbyname (void *handle, struct passwd *pw, char const *name)
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_pwd_getbyname_g(&a->tab[i].handle, pw, &storagesa, name, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -225,7 +245,12 @@ void nsssd_pwd_end (void *handle)
       else continue ;
     }
     tain_add_g(&deadline, &tto) ;
-    nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline) ;
+    if (nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline)) continue ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
   }
 }
 
@@ -248,6 +273,11 @@ int nsssd_grp_rewind (void *handle)
     }
     tain_add_g(&deadline, &tto) ;
     if (nsss_switch_grp_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & 2) return 0 ;
   }
   return 0 ;
@@ -269,6 +299,11 @@ int nsssd_grp_get (void *handle, struct group *gr)
     genalloc_setlen(char *, &storagega, 0) ;
     errno = 0 ;
     if (nsss_switch_grp_get_g(&a->tab[i].handle, gr, &storagesa, &storagega, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -290,6 +325,11 @@ int nsssd_grp_getbygid (void *handle, struct group *gr, gid_t gid)
     genalloc_setlen(char *, &storagega, 0) ;
     errno = 0 ;
     if (nsss_switch_grp_getbygid_g(&a->tab[i].handle, gr, &storagesa, &storagega, gid, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -311,6 +351,11 @@ int nsssd_grp_getbyname (void *handle, struct group *gr, char const *name)
     genalloc_setlen(char *, &storagega, 0) ;
     errno = 0 ;
     if (nsss_switch_grp_getbyname_g(&a->tab[i].handle, gr, &storagesa, &storagega, name, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -331,6 +376,11 @@ int nsssd_grp_getlist (void *handle, char const *user, gid_t *gids, size_t n, si
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_grp_getlist_g(&a->tab[i].handle, user, gids, n, r, &storagesa, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -348,7 +398,12 @@ void nsssd_grp_end (void *handle)
       else continue ;
     }
     tain_add_g(&deadline, &tto) ;
-    nsss_switch_grp_end_g(&a->tab[i].handle, &deadline) ;
+    if (nsss_switch_grp_end_g(&a->tab[i].handle, &deadline)) continue ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
   }
 }
 
@@ -371,6 +426,11 @@ int nsssd_shadow_rewind (void *handle)
     }
     tain_add_g(&deadline, &tto) ;
     if (nsss_switch_shadow_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & 2) return 0 ;
   }
   return 0 ;
@@ -391,6 +451,11 @@ int nsssd_shadow_get (void *handle, struct spwd *sp)
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_shadow_get_g(&a->tab[i].handle, sp, &storagesa, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -411,6 +476,11 @@ int nsssd_shadow_getbyname (void *handle, struct spwd *sp, char const *name)
     storagesa.len = 0 ;
     errno = 0 ;
     if (nsss_switch_shadow_getbyname_g(&a->tab[i].handle, sp, &storagesa, name, &deadline)) return 1 ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
     if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
   }
   return 0 ;
@@ -428,7 +498,12 @@ void nsssd_shadow_end (void *handle)
       else continue ;
     }
     tain_add_g(&deadline, &tto) ;
-    nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline) ;
+    if (nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline)) continue ;
+    if (errno == ETIMEDOUT)
+    {
+      nsss_switch_end(&a->tab[i].handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW) ;
+      a->tab[i].failed = 1 ;
+    }
   }
 }
 

@@ -1,13 +1,13 @@
 #!/bin/sh -e
 
-S=./.test-switch-socket
-F=./.test-switch-fifo
+S=./.test-nsssd-switch-socket
+F=./.test-nsssd-switch-fifo
 
 pid=0
 
 cleanup () {
   kill $pid
-  rm -f $S
+  rm -f ${S} ${S}.lock
 }
 
 mkfifo $F

@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
 S=./.test-switch-socket
 F=./.test-switch-fifo
@@ -7,13 +7,13 @@ pid=0
 
 cleanup () {
   kill $pid
-  rm -f $S
+  rm -f ${S} ${S}.lock
 }
 
 mkfifo $F
 head -n 1 < $F >/dev/null &
 pid=$!
-s6-ipcserver -1 -- $S ./nsssd-unix > $F &
+s6-ipcserver -1 -- ${S} ./nsssd-unix > $F &
 wait $pid
 pid=$!
 rm -f $F
