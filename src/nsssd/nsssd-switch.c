@@ -2,23 +2,27 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <skalibs/types.h>
 #include <skalibs/buffer.h>
 #include <skalibs/strerr2.h>
 #include <skalibs/sgetopt.h>
 #include <skalibs/tai.h>
+#include <skalibs/stralloc.h>
+#include <skalibs/genalloc.h>
 
 #include <nsss/nsssd.h>
 #include <nsss/nsss-switch.h>
-#include <nsss/nsss-unix.h>
 
-#define USAGE "nsssd-switch flag1 backend1... \"\" flag2 backend2... \"\""
+#define USAGE "nsssd-switch bitfield1 backend1... \"\" bitfield2 backend2... \"\""
 #define dieusage() strerr_dieusage(100, USAGE)
 
 #define MAX_BACKENDS 16
 
 static tain tto = TAIN_INFINITE_RELATIVE ;
+static stralloc storagesa = STRALLOC_ZERO ;
+static genalloc storagega = GENALLOC_ZERO ;
 
 
  /* We cannot depend on execline so we duplicate functions here */
@@ -71,9 +75,9 @@ static int el_semicolon (char const **argv)
 typedef struct backend_s backend_t, *backend_t_ref ;
 struct backend_s
 {
-  char const *const *argv ;
   nsss_switch_t handle ;
-  uint8_t flags ;
+  uint8_t flags : 3 ;
+  uint8_t failed : 1 ;
 } ;
 
 typedef struct handle_s handle_t, *handle_t_ref ;
@@ -98,18 +102,19 @@ int nsssd_handle_start (void *handle, char const *const *argv)
   while (args[argc])
   {
     backend_t *be = &a->tab[a->n] ;
+    unsigned int bitfield ;
     int argc1 ;
-    unsigned int flags ;
-    if (!uint0_scan(args[argc++], &flags)) dieusage() ;
+    if (!uint0_scan(args[argc++], &bitfield)) dieusage() ;
     if (!args[argc]) strerr_dief1x(100, "missing block") ;
     argc1 = el_semicolon(args + argc) ;
     if (!argc1) strerr_dief1x(100, "empty block") ;
     if (!args[argc + argc1]) strerr_dief1x(100, "unterminated block") ;
     args[argc + argc1] = 0 ;
-    if (a->n++ >= MAX_BACKENDS) strerr_dief1x(100, "too many defined backends") ;
-    be->flags = flags & 0x7 ;
-    be->argv = args + argc ;
     be->handle = nsss_switch_zero ;
+    be->flags = 0 ;
+    be->failed = !nsss_switch_startf(&be->handle, NSSS_SWITCH_PWD | NSSS_SWITCH_GRP | NSSS_SWITCH_SHADOW, args + argc, 0, 0) ;
+    if (a->n++ >= MAX_BACKENDS) strerr_dief1x(100, "too many defined backends") ;
+    be->flags |= bitfield & 0x7 ;
     argc += argc1 ;
   }
   if (!a->n) strerr_dief1x(100, "no defined backends") ;
@@ -132,47 +137,96 @@ int nsssd_pwd_start (void *handle)
 
 int nsssd_pwd_rewind (void *handle)
 {
-  nsss_unix_setpwent() ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    if (nsss_switch_pwd_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (a->tab[i].flags & 2) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_pwd_get (void *handle, struct passwd *pw)
 {
-  struct passwd *pw2 = nsss_unix_getpwent() ;
-  if (!pw2) return 0 ;
-  *pw = *pw2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_pwd_get_g(&a->tab[i].handle, pw, &storagesa, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_pwd_getbyuid (void *handle, struct passwd *pw, uid_t uid)
 {
-  struct passwd *pw2 = nsss_unix_getpwuid(uid) ;
-  if (!pw2) return 0 ;
-  *pw = *pw2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_pwd_getbyuid_g(&a->tab[i].handle, pw, &storagesa, uid, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_pwd_getbyname (void *handle, struct passwd *pw, char const *name)
 {
-  struct passwd *pw2 = nsss_unix_getpwnam(name) ;
-  if (!pw2) return 0 ;
-  *pw = *pw2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_pwd_getbyname_g(&a->tab[i].handle, pw, &storagesa, name, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 void nsssd_pwd_end (void *handle)
 {
-  nsss_unix_endpwent() ;
-  (void)handle ;
-}
-
-void nsssd_grp_handle_init (void *handle)
-{
-  (void)handle ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline) ;
+  }
 }
 
 int nsssd_grp_start (void *handle)
@@ -183,53 +237,119 @@ int nsssd_grp_start (void *handle)
 
 int nsssd_grp_rewind (void *handle)
 {
-  nsss_unix_setgrent() ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    if (nsss_switch_grp_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (a->tab[i].flags & 2) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_grp_get (void *handle, struct group *gr)
 {
-  struct group *gr2 = nsss_unix_getgrent() ;
-  if (!gr2) return 0 ;
-  *gr = *gr2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    genalloc_setlen(char *, &storagega, 0) ;
+    errno = 0 ;
+    if (nsss_switch_grp_get_g(&a->tab[i].handle, gr, &storagesa, &storagega, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_grp_getbygid (void *handle, struct group *gr, gid_t gid)
 {
-  struct group *gr2 = nsss_unix_getgrgid(gid) ;
-  if (!gr2) return 0 ;
-  *gr = *gr2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    genalloc_setlen(char *, &storagega, 0) ;
+    errno = 0 ;
+    if (nsss_switch_grp_getbygid_g(&a->tab[i].handle, gr, &storagesa, &storagega, gid, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_grp_getbyname (void *handle, struct group *gr, char const *name)
 {
-  struct group *gr2 = nsss_unix_getgrnam(name) ;
-  if (!gr2) return 0 ;
-  *gr = *gr2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    genalloc_setlen(char *, &storagega, 0) ;
+    errno = 0 ;
+    if (nsss_switch_grp_getbyname_g(&a->tab[i].handle, gr, &storagesa, &storagega, name, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_grp_getlist (void *handle, char const *user, gid_t *gids, size_t n, size_t *r)
 {
-  (void)handle ;
-  return nsss_unix_getgrouplist_preadjust(user, gids, n, r) ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_grp_getlist_g(&a->tab[i].handle, user, gids, n, r, &storagesa, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 void nsssd_grp_end (void *handle)
 {
-  nsss_unix_endgrent() ;
-  (void)handle ;
-}
-
-void nsssd_shadow_handle_init (void *handle)
-{
-  (void)handle ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    nsss_switch_grp_end_g(&a->tab[i].handle, &deadline) ;
+  }
 }
 
 int nsssd_shadow_start (void *handle)
@@ -240,33 +360,76 @@ int nsssd_shadow_start (void *handle)
 
 int nsssd_shadow_rewind (void *handle)
 {
-  nsss_unix_setspent() ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    if (nsss_switch_shadow_rewind_g(&a->tab[i].handle, &deadline)) return 1 ;
+    if (a->tab[i].flags & 2) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_shadow_get (void *handle, struct spwd *sp)
 {
-  struct spwd *sp2 = nsss_unix_getspent() ;
-  if (!sp2) return 0 ;
-  *sp = *sp2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_shadow_get_g(&a->tab[i].handle, sp, &storagesa, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 int nsssd_shadow_getbyname (void *handle, struct spwd *sp, char const *name)
 {
-  struct spwd *sp2 = nsss_unix_getspnam(name) ;
-  if (!sp2) return 0 ;
-  *sp = *sp2 ;
-  (void)handle ;
-  return 1 ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return 0 ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    storagesa.len = 0 ;
+    errno = 0 ;
+    if (nsss_switch_shadow_getbyname_g(&a->tab[i].handle, sp, &storagesa, name, &deadline)) return 1 ;
+    if (a->tab[i].flags & (errno ? 2 : 4)) return 0 ;
+  }
+  return 0 ;
 }
 
 void nsssd_shadow_end (void *handle)
 {
-  nsss_unix_endspent() ;
-  (void)handle ;
+  handle_t *a = handle ;
+  for (unsigned int i = 0 ; i < a->n ; i++)
+  {
+    tain deadline ;
+    if (a->tab[i].failed)
+    {
+      if (a->tab[i].flags & 1) return ;
+      else continue ;
+    }
+    tain_add_g(&deadline, &tto) ;
+    nsss_switch_pwd_end_g(&a->tab[i].handle, &deadline) ;
+  }
 }
 
 int main (int argc, char const *const *argv)

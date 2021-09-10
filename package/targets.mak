@@ -8,6 +8,7 @@ LIBEXEC_TARGETS :=
 TEST_BINS := \
 test-switch \
 test-unix \
+test-nsssd-switch \
 test-all-fallback
 
 LIB_DEFS := NSSS=nsss NSSSD=nsssd

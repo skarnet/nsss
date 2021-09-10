@@ -10,3 +10,4 @@
 /nsssd-nslcd
 /nsssd-switch
 /test-*
+/.test-*

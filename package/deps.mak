@@ -155,6 +155,7 @@ src/nsssd/nsssd-unix.o src/nsssd/nsssd-unix.lo: src/nsssd/nsssd-unix.c src/inclu
 src/nsssd/nsssd_convert.o src/nsssd/nsssd_convert.lo: src/nsssd/nsssd_convert.c src/include/nsss/grp-def.h src/include/nsss/nsssd.h src/include/nsss/pwd-def.h src/include/nsss/shadow-def.h
 src/nsssd/nsssd_main.o src/nsssd/nsssd_main.lo: src/nsssd/nsssd_main.c src/include/nsss/grp-def.h src/include/nsss/nsss-switch.h src/include/nsss/nsssd.h src/include/nsss/pwd-def.h src/include/nsss/shadow-def.h
 src/tests/test-all-fallback.o src/tests/test-all-fallback.lo: src/tests/test-all-fallback.c src/include/nsss/grp-def.h src/include/nsss/nsss-all.h src/include/nsss/pwd-def.h
+src/tests/test-nsssd-switch.o src/tests/test-nsssd-switch.lo: src/tests/test-nsssd-switch.c src/include/nsss/grp-def.h src/include/nsss/nsss-switch.h src/include/nsss/pwd-def.h
 src/tests/test-switch.o src/tests/test-switch.lo: src/tests/test-switch.c src/include/nsss/grp-def.h src/include/nsss/nsss-switch.h src/include/nsss/pwd-def.h
 src/tests/test-unix.o src/tests/test-unix.lo: src/tests/test-unix.c src/include/nsss/grp-def.h src/include/nsss/nsss-unix.h src/include/nsss/pwd-def.h
 
@@ -180,6 +181,8 @@ nsssd-unix: EXTRA_LIBS := -lskarnet
 nsssd-unix: src/nsssd/nsssd-unix.o ${LIBNSSSD} ${LIBNSSS}
 test-all-fallback: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
 test-all-fallback: src/tests/test-all-fallback.o ${LIBNSSS}
+test-nsssd-switch: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
+test-nsssd-switch: src/tests/test-nsssd-switch.o ${LIBNSSS}
 test-switch: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
 test-switch: src/tests/test-switch.o ${LIBNSSS}
 test-unix: EXTRA_LIBS := -lskarnet
