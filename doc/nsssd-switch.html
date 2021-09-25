@@ -29,9 +29,20 @@ the <a href="libnsss/nsss-switch.html">nsss-switch</a> functions.
  The <tt>nsssd-switch</tt> backend is the real point of the <a href="index.html">nsss</a>
 package: it allows a complex configuration using different other backends,
 similarly to the <a href="nsswitch.html">/etc/nsswitch.conf</a> mechanism
-but without its drawbacks. It accomplishes this by reading its backend
-configuration on the command line.
+but without its drawbacks:
 </p>
+
+<ul>
+ <li> Backends that access the user/group/shadow databases are not implemented
+via dynamically loaded shared libraries, but executables that are spawned by
+<tt>nsssd-switch</tt>. The executables use the same protocol as <tt>nsssd-switch</tt>
+itself, so the provided <a href="nsssd-unix.html">nsssd-unix</a> and
+<a href="nsssd-nslcd.html">nsssd-nslcd</a> programs can be used as backends. </li>
+ <li> No configuration file is needed, so no parsing is necessary. Backends
+are sequentially listed on the <tt>nsssd-switch</tt> command line, along with
+a single argument telling <tt>nsssd-switch</tt> what to do in case of failure.
+This makes the decision automaton very simple. </li>
+</ul>
 
 <h2> Interface </h2>
 
