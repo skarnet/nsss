@@ -4,6 +4,8 @@ In 0.2.0.0
 ----------
 
  - Adaptation to skalibs-2.11.0.0.
+ - nsss wire protocol slightly modified.
+ - New binary: nsssd-switch.
 
 
 In 0.1.0.1
