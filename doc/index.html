@@ -29,7 +29,7 @@ performing user database access on Unix systems.
  Usually, user database access via <tt>getpwnam()</tt> and similar
 function is provided by the system's libc. However, not all libcs implement
 a configurable backend for the user/group database. For instance the
-<a href="https://musl-libc.org/">musl</a> libc, on Linux, only supports
+<a href="https://musl.libc.org/">musl</a> libc, on Linux, only supports
 the standard <tt>/etc/passwd</tt> mechanism; it also supports the
 <tt>nscd</tt> protocol but this is not quite enough:
 </p>
