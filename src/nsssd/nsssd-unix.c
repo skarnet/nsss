@@ -1,6 +1,6 @@
 /* ISC license. */
 
-#include <skalibs/strerr2.h>
+#include <skalibs/strerr.h>
 
 #include <nsss/pwd-unix.h>
 #include <nsss/grp-unix.h>

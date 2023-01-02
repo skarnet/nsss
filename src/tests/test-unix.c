@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <skalibs/buffer.h>
-#include <skalibs/strerr2.h>
+#include <skalibs/strerr.h>
 #include <skalibs/lolstdio.h>
 #include <nsss/pwd-def.h>
 #include <nsss/grp-def.h>

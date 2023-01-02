@@ -11,7 +11,7 @@
 #include <skalibs/uint64.h>
 #include <skalibs/types.h>
 #include <skalibs/buffer.h>
-#include <skalibs/strerr2.h>
+#include <skalibs/strerr.h>
 #include <skalibs/genalloc.h>
 #include <skalibs/tai.h>
 #include <skalibs/djbunix.h>
