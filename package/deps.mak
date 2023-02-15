@@ -187,3 +187,4 @@ test-switch: EXTRA_LIBS := -lskarnet ${SOCKET_LIB} ${SYSCLOCK_LIB}
 test-switch: src/tests/test-switch.o ${LIBNSSS}
 test-unix: EXTRA_LIBS := -lskarnet
 test-unix: src/tests/test-unix.o ${LIBNSSS}
+INTERNAL_LIBS :=
