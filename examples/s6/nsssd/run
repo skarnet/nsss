@@ -1,4 +1,4 @@
-#!/bin/execlineb -P
+#!/bin/execlineb -S1
 
 fdmove -c 2 1
 s6-envuidgid nsss

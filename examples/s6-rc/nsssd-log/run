@@ -1,4 +1,4 @@
-#!/bin/execlineb -P
+#!/bin/execlineb -S1
 
 s6-setuidgid nssslog
 exec -c
