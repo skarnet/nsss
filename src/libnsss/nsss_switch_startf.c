@@ -4,7 +4,7 @@
 
 #include <skalibs/posixplz.h>
 #include <skalibs/buffer.h>
-#include <skalibs/djbunix.h>
+#include <skalibs/cspawn.h>
 
 #include <nsss/nsss-switch.h>
 
