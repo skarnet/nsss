@@ -69,7 +69,7 @@ extern "C" {
    do not conflict with nsss operation.
  */
 
-#if defined(_GNU_SOURCE) || defined(_DEFAULT_SOURCE)
+#if defined(__GNU__) && (defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE))
 #include <sys/types.h>
 extern int setgroups (size_t, gid_t const *) ;
 extern int initgroups (char const *, gid_t) ;
