@@ -16,6 +16,7 @@ CC = $(error Please use ./configure first)
 
 STATIC_LIBS :=
 SHARED_LIBS :=
+INTERNAL_LIBS :=
 EXTRA_TARGETS :=
 LIB_DEFS :=
 
@@ -59,7 +60,7 @@ ALL_INCLUDES := $(wildcard src/include/$(package)/*.h)
 all: $(ALL_LIBS) $(ALL_BINS) $(ALL_INCLUDES) $(EXTRA_INCLUDES)
 
 clean:
-	@exec rm -f $(ALL_LIBS) $(ALL_BINS) $(wildcard src/*/*.o src/*/*.lo) $(TEST_BINS) $(EXTRA_TARGETS)
+	@exec rm -f $(ALL_LIBS) $(ALL_BINS) $(wildcard src/*/*.o src/*/*.lo) $(EXTRA_TARGETS)
 
 distclean: clean
 	@exec rm -f config.mak src/include/$(package)/config.h
@@ -86,13 +87,6 @@ install-libexec: $(LIBEXEC_TARGETS:%=$(DESTDIR)$(libexecdir)/%)
 install-bin: $(BIN_TARGETS:%=$(DESTDIR)$(bindir)/%)
 install-lib: $(STATIC_LIBS:lib%.a.xyzzy=$(DESTDIR)$(libdir)/lib%.a)
 install-include: $(ALL_INCLUDES:src/include/$(package)/%.h=$(DESTDIR)$(includedir)/$(package)/%.h) $(EXTRA_INCLUDES:src/include/%.h=$(DESTDIR)$(includedir)/%.h)
-install-data: $(ALL_DATA:src/etc/%=$(DESTDIR)$(datadir)/%)
-
-tests: $(TEST_BINS)
-
-check: tests
-	@for i in $(TEST_BINS) ; do ./tools/run-test.sh $$i || exit 1 ; done
-
 
 ifneq ($(exthome),)
 
@@ -112,9 +106,6 @@ $(DESTDIR)$(sproot)/library.so/lib%.so.$(version_M): $(DESTDIR)$(dynlibdir)/lib%
 .PHONY: update global-links
 
 endif
-
-$(DESTDIR)$(datadir)/%: src/etc/%
-	exec $(INSTALL) -D -m 644 $< $@
 
 $(DESTDIR)$(dynlibdir)/lib%.so $(DESTDIR)$(dynlibdir)/lib%.so.$(version_M): lib%.so.xyzzy
 	$(INSTALL) -D -m 755 $< $@.$(version) && \
@@ -142,7 +133,7 @@ $(DESTDIR)$(includedir)/%.h: src/include/%.h
 %.lo: %.c
 	exec $(CC) $(CPPFLAGS_ALL) $(CFLAGS_ALL) $(CFLAGS_SHARED) -c -o $@ $<
 
-$(ALL_BINS) $(TEST_BINS):
+$(ALL_BINS):
 	exec $(CC) -o $@ $(CFLAGS_ALL) $(LDFLAGS_ALL) $(LDFLAGS_NOSHARED) $^ $(EXTRA_LIBS) $(LDLIBS)
 
 lib%.a.xyzzy:
@@ -152,6 +143,6 @@ lib%.a.xyzzy:
 lib%.so.xyzzy:
 	exec $(CC) -o $@ $(CFLAGS_ALL) $(CFLAGS_SHARED) $(LDFLAGS_ALL) $(LDFLAGS_SHARED) -Wl,-soname,$(patsubst lib%.so.xyzzy,lib%.so.$(version_M),$@) $^ $(EXTRA_LIBS) $(LDLIBS)
 
-.PHONY: it all clean distclean tgz strip install install-dynlib install-bin install-lib install-include install-data tests check
+.PHONY: it all clean distclean tgz strip install install-dynlib install-bin install-lib install-include
 
 .DELETE_ON_ERROR:
