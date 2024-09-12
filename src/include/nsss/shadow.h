@@ -51,6 +51,8 @@ extern "C" {
    do not conflict with nsss operation.
  */
 
+#define SHADOW "/etc/shadow"
+
 #include <stdio.h>
 
 extern struct spwd *fgetspent (FILE *) ;

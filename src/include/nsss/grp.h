@@ -20,7 +20,7 @@ extern "C" {
 #define getgrnam nsss_unix_getgrnam
 #define getgrnam_r nsss_unix_getgrnam_r
 
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE)
 # define getgrouplist nsss_unix_getgrouplist
 #endif
 
@@ -38,7 +38,7 @@ extern "C" {
 #define getgrnam nsss_switch_getgrnam
 #define getgrnam_r nsss_switch_getgrnam_r
 
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE)
 # define getgrouplist nsss_switch_getgrouplist
 #endif
 
@@ -55,7 +55,7 @@ extern "C" {
 #define getgrnam nsss_all_getgrnam
 #define getgrnam_r nsss_all_getgrnam_r
 
-#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE)
 # define getgrouplist nsss_all_getgrouplist
 #endif
 
@@ -69,7 +69,7 @@ extern "C" {
    do not conflict with nsss operation.
  */
 
-#if defined(__GNU__) && (defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE))
+#if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE)
 #include <sys/types.h>
 extern int setgroups (size_t, gid_t const *) ;
 extern int initgroups (char const *, gid_t) ;
