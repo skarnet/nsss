@@ -21,11 +21,11 @@ Fine tuning of the installation directories:
   --dynlibdir=DIR               shared library files [PREFIX/lib]
   --bindir=BINDIR               user executables [EPREFIX/bin]
   --libexecdir=DIR              package-scoped executables [EPREFIX/libexec]
-  --libdir=DIR                  static library files [PREFIX/lib/$package]
+  --libdir=DIR                  static library files [PREFIX/lib]
   --includedir=DIR              C header files [PREFIX/include]
 
  If no --prefix option is given, by default libdir (but not dynlibdir) will be
- /usr/lib/$package, and includedir will be /usr/include.
+ /usr/lib, and includedir will be /usr/include.
 
 Dependencies:
   --with-sysdeps=DIR            use sysdeps in DIR [PREFIX/lib/skalibs/sysdeps]
