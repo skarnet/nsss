@@ -70,9 +70,19 @@ extern "C" {
  */
 
 #if defined(_GNU_SOURCE) || defined(_BSD_SOURCE) || defined(_DEFAULT_SOURCE)
+
 #include <sys/types.h>
-extern int setgroups (size_t, gid_t const *) ;
+
 extern int initgroups (char const *, gid_t) ;
+
+ /* guess who has a different definition of setgroups() from everyone else */
+
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__bsdi__) || defined(__DragonFly__)
+extern int setgroups (int, gid_t const *) ;
+#else
+extern int setgroups (size_t, gid_t const *) ;
+#endif
+
 #endif
 
 #ifdef _GNU_SOURCE
