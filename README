@@ -1,7 +1,7 @@
 nsssd - a secure NSS-like implementation for small libcs
 --------------------------------------------------------
 
- nsss is a library implementing a subset of pwd.h, group.h
+ nsss is a library implementing a subset of pwd.h, grp.h
 and shadow.h family of functions - the subset that can use a
 different backend than the standard /etc/passwd (et al.) files.
 It is intended to be used with certain libcs, such as musl, that
