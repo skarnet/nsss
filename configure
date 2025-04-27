@@ -23,6 +23,7 @@ Fine tuning of the installation directories:
   --libexecdir=DIR              package-scoped executables [EPREFIX/libexec]
   --libdir=DIR                  static library files [PREFIX/lib]
   --includedir=DIR              C header files [PREFIX/include]
+  --pkgconfdir=DIR              pkg-config .pc files [PREFIX/lib/pkgconfig]
 
  If no --prefix option is given, by default libdir (but not dynlibdir) will be
  /usr/lib, and includedir will be /usr/include.
@@ -32,6 +33,7 @@ Dependencies:
   --with-include=DIR            add DIR to the list of searched directories for headers
   --with-lib=DIR                add DIR to the list of searched directories for static libraries
   --with-dynlib=DIR             add DIR to the list of searched directories for shared libraries
+  --with-pkgconfig[=PROG]       use pkg-config to look for dependencies
 
  If no --prefix option is given, by default sysdeps will be fetched from
  /usr/lib/skalibs/sysdeps.
@@ -43,8 +45,8 @@ Optional features:
   --enable-static-libc          make entirely static binaries [disabled]
   --disable-all-pic             don't build executables or static libs as PIC [enabled]
   --enable-slashpackage[=ROOT]  assume /package installation at ROOT [disabled]
-  --enable-absolute-paths       do not rely on PATH to access this package's binaries,
-                                  hardcode absolute BINDIR/foobar paths instead [disabled]
+  --enable-absolute-paths       hardcode absolute BINDIR/foobar paths in binaries [disabled]
+  --enable-pkgconfig            Build and install .pc files for pkg-config [disabled]
 
   --with-nsssd-socket=PATH      assume the nsssd socket is at PATH [/run/service/nsssd/s]
   --enable-libc-includes        overwrite {pwd,grp,shadow}.h in includedir [disabled]
@@ -142,6 +144,7 @@ libexecdir='$exec_prefix/libexec'
 bindir='$exec_prefix/bin'
 libdir='$prefix/lib'
 includedir='$prefix/include'
+pkgconfdir='$prefix/lib/pkgconfig'
 sysdeps='$prefix/lib/skalibs/sysdeps'
 manualsysdeps=false
 shared=false
@@ -149,14 +152,18 @@ static=true
 allpic=true
 slashpackage=false
 abspath=false
+pcw=false
 sproot=
 home=
 exthome=
 allstatic=true
 evenmorestatic=false
+pkgconf=
 addincpath=''
 addlibspath=''
 addlibdpath=''
+depincpath=''
+deplibpath=''
 vpaths=''
 vpathd=''
 build=
@@ -173,10 +180,14 @@ for arg ; do
     --bindir=*) bindir=${arg#*=} ;;
     --libdir=*) libdir=${arg#*=} ;;
     --includedir=*) includedir=${arg#*=} ;;
+    --pkgconfigdir=*) pkgconfigdir=${arg#*=} ;;
     --with-sysdeps=*) sysdeps=${arg#*=} manualsysdeps=true ;;
     --with-include=*) var=${arg#*=} ; stripdir var ; addincpath="$addincpath -I$var" ;;
     --with-lib=*) var=${arg#*=} ; stripdir var ; addlibspath="$addlibspath -L$var" ; vpaths="$vpaths $var" ;;
     --with-dynlib=*) var=${arg#*=} ; stripdir var ; addlibdpath="$addlibdpath -L$var" ; vpathd="$vpathd $var" ;;
+    --with-pkgconfig=*) pkgconf=${arg#*=} ;;
+    --with-pkgconfig) pkgconf=${PKG_CONFIG:-pkg-config} ;;
+    --without-pkgconfig) pkgconf= ;;
     --enable-shared|--enable-shared=yes) shared=true ;;
     --disable-shared|--enable-shared=no) shared=false ;;
     --enable-static|--enable-static=yes) static=true ;;
@@ -187,6 +198,8 @@ for arg ; do
     --disable-static-libc|--enable-static-libc=no) evenmorestatic=false ;;
     --enable-all-pic|--enable-all-pic=yes) allpic=true ;;
     --disable-all-pic|--enable-all-pic=no) allpic=false ;;
+    --enable-pkgconfig|--enable-pkgconfig=yes) pcw=true ;;
+    --disable-pkgconfig|--enable-pkgconfig=no) pcw=false ;;
     --enable-slashpackage=*) sproot=${arg#*=} ; slashpackage=true ; ;;
     --enable-slashpackage) sproot= ; slashpackage=true ;;
     --disable-slashpackage) sproot= ; slashpackage=false ;;
@@ -212,6 +225,9 @@ if test -z "$prefix" ; then
   if test "$includedir" = '$prefix/include' ; then
     includedir=/usr/include
   fi
+  if test "$pkgconfdir" = '$prefix/lib/pkgconfig' ; then
+    pkgconfdir=/usr/lib/pkgconfig
+  fi
   if test "$sysdeps" = '$prefix/lib/skalibs/sysdeps' ; then
     sysdeps=/usr/lib/skalibs/sysdeps
   fi
@@ -219,11 +235,76 @@ fi
 
 # Expand installation directories
 stripdir prefix
-for i in exec_prefix dynlibdir libexecdir bindir libdir includedir sysdeps sproot ; do
+for i in exec_prefix dynlibdir libexecdir bindir libdir includedir pkgconfdir sysdeps sproot ; do
   eval tmp=\${$i}
   eval $i=$tmp
   stripdir $i
 done
+
+# Process deps-build
+if test -n "$pkgconf" || $pcw || $slashpackage ; then
+  oldifs="$IFS"
+  while IFS=" 	" read cond usedinlibs pkg ver libs ; do
+    IFS="$oldifs"
+    eval "cond=$cond; usedinlibs=$usedinlibs"
+    if $cond ; then
+      if test -n "$pkgconf" ; then
+        for lib in $libs ; do
+          if ! $pkgconf --atleast-version=${ver} --print-errors -- "$lib" ; then
+            echo "./configure: fatal: $pkgconf --atleast-version=${ver} --print-errors -- $lib failed" 1>&2
+            exit 1
+          fi
+          thisinc="`$pkgconf --cflags-only-I -- $lib`"
+          sldflags="`$pkgconf --libs-only-L --static -- $lib`"
+          dldflags="`$pkgconf --libs-only-L -- $lib`"
+          addincpath="${addincpath}${thisinc:+ }$thisinc"
+          addlibspath="${addlibspath}${sldflags:+ }$sldflags"
+          addlibdpath="${addlibdpath}${dldflags:+ }$dldflags"
+          for i in $sldflags ; do
+            vpaths="$vpaths ${i##-L}"
+          done
+          for i in $dldflags ; do
+            vpathd="$vpathd ${i##-L}"
+          done
+          if $usedinlibs ; then
+            depincpath="${depincpath}${thisinc:+ }$thisinc"
+            deplibpath="${deplibpath}${sldflags:+ }$sldflags"
+          fi
+        done
+      fi
+      if $slashpackage ; then
+        addincpath="$addincpath -I${DESTDIR}${sproot}${pkg}/include"
+        vpaths="$vpaths ${DESTDIR}${sproot}${pkg}/library"
+        addlibspath="$addlibspath -L${DESTDIR}${sproot}${pkg}/library"
+        vpathd="$vpathd ${DESTDIR}${sproot}${pkg}/library.so"
+        addlibdpath="$addlibdpath -L${DESTDIR}${sproot}${pkg}/library.so"
+        if $usedinlibs ; then
+          depincpath="$depincpath -I${DESTDIR}${sproot}${pkg}/include"
+          deplibpath="$deplibpath -L${DESTDIR}${sproot}${pkg}/library"
+        fi
+      fi
+    fi
+  done < package/deps-build
+  IFS="$oldifs"
+fi
+
+# Other slashpackage values
+if $slashpackage ; then
+  home=${sproot}/package/${category}/${package}-${version}
+  exthome=${sproot}/package/${category}/${package}
+  if $manualsysdeps ; then
+    :
+  else
+    sysdeps=${DESTDIR}${sproot}/package/prog/skalibs/sysdeps
+  fi
+  extbinprefix=${exthome}/command
+  dynlibdir=${home}/library.so
+  bindir=${home}/command
+  libdir=${home}/library
+  libexecdir=$bindir
+  includedir=${home}/include
+  pkgconfdir=${home}/pkgconfig
+fi
 
 # Get usable temp filenames
 i=0
@@ -240,37 +321,6 @@ while : ; do
 done
 set +C
 trap 'rm -f "$tmpc" "$tmpo" "$tmpe"' EXIT ABRT INT QUIT TERM HUP
-
-# Set slashpackage values
-if $slashpackage ; then
-  home=${sproot}/package/${category}/${package}-${version}
-  exthome=${sproot}/package/${category}/${package}
-  if $manualsysdeps ; then
-    :
-  else
-    sysdeps=${DESTDIR}${sproot}/package/prog/skalibs/sysdeps
-  fi
-  extbinprefix=${exthome}/command
-  dynlibdir=${home}/library.so
-  bindir=${home}/command
-  libdir=${home}/library
-  libexecdir=$bindir
-  includedir=${home}/include
-  while read dep condvar ; do
-    if test -n "$condvar" ; then
-      eval "cond=$condvar"
-    else
-      cond=true
-    fi
-    if $cond ; then
-      addincpath="$addincpath -I${DESTDIR}${sproot}${dep}/include"
-      vpaths="$vpaths ${DESTDIR}${sproot}${dep}/library"
-      addlibspath="$addlibspath -L${DESTDIR}${sproot}${dep}/library"
-      vpathd="$vpathd ${DESTDIR}${sproot}${dep}/library.so"
-      addlibdpath="$addlibdpath -L${DESTDIR}${sproot}${dep}/library.so"
-    fi
-  done < package/deps-build
-fi
 
 # Find a C compiler to use
 if test -n "$target" && test x${build} != x${target} ; then
@@ -389,12 +439,15 @@ libexecdir := $libexecdir
 bindir := $bindir
 libdir := $libdir
 includedir := $includedir
+pkgconfdir := $pkgconfdir
 sysdeps := $sysdeps
 slashpackage := $slashpackage
 sproot := $sproot
 version := $version
 home := $home
 exthome := $exthome
+extra_includedirs :=$depincpath
+extra_libdirs :=$deplibpath
 SPAWN_LIB := ${spawn_lib}
 SOCKET_LIB := ${socket_lib}
 SYSCLOCK_LIB := ${sysclock_lib}
@@ -403,17 +456,18 @@ UTIL_LIB := ${util_lib}
 
 CC := $CC_AUTO
 CPPFLAGS_AUTO := $CPPFLAGS_AUTO
-CPPFLAGS := $CPPFLAGS $CPPFLAGS_POST
+CPPFLAGS := ${CPPFLAGS}${CPPFLAGS_POST:+ }$CPPFLAGS_POST
 CFLAGS_AUTO := $CFLAGS_AUTO
-CFLAGS := $CFLAGS $CFLAGS_POST
+CFLAGS := ${CFLAGS}${CFLAGS_POST:+ }$CFLAGS_POST
 LDFLAGS_AUTO := $LDFLAGS_AUTO
-LDFLAGS := $LDFLAGS $LDFLAGS_POST
+LDFLAGS := ${LDFLAGS}${LDFLAGS_POST:+ }$LDFLAGS_POST
 LDFLAGS_SHARED := $LDFLAGS_SHARED
 LDFLAGS_NOSHARED := $LDFLAGS_NOSHARED
 CROSS_COMPILE := $cross
 
 vpath lib%.a$vpaths
 vpath lib%.so$vpathd
+
 EOF
 if $allstatic ; then
   echo ".LIBPATTERNS := lib%.a"
@@ -430,6 +484,11 @@ if $shared ; then
   echo "DO_SHARED := 1"
 else
   echo "DO_SHARED :="
+fi
+if $pcw ; then
+  echo "DO_PKGCONFIG := 1"
+else
+  echo "DO_PKGCONFIG :="
 fi
 if $allpic ; then
   echo "STATIC_LIBS_ARE_PIC := 1"

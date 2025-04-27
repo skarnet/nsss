@@ -1,5 +1,6 @@
 *.o
 *.lo
+/*.pc
 /config.mak
 /src/include/nsss/config.h
 /libnsss.a.xyzzy

@@ -1,9 +1,10 @@
 Changelog for nsss.
 
-In 0.2.0.6
+In 0.2.1.0
 ----------
 
  - Bugfixes.
+ - pkg-config support.
 
 
 In 0.2.0.5
