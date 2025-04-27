@@ -1,0 +1,27 @@
+configure_help_install=''
+configure_help_dependencies=''
+
+configure_help_options='
+  --with-nsssd-socket=PATH      assume the nsssd socket is at PATH [/run/service/nsssd/s]
+  --enable-libc-includes        overwrite {pwd,grp,shadow}.h in includedir [disabled]'
+
+configure_init_vars='\
+nsssdpath=/run/service/nsssd/s
+libcincludes=false'
+
+configure_case_lines='\
+    --enable-libc-includes|--enable-libc-includes=yes) libcincludes=true ;;
+    --disable-libc-includes|--enable-libc-includes=no) libcincludes=false ;;
+    --with-nsssd-socket=*) nsssdpath=${arg#*=} ;;'
+
+configure_expand_dirs=''
+configure_slashpackage_other=''
+
+configure_generate_make='\
+if $libcincludes ; then
+  echo "DO_LIBC_INCLUDES := 1"
+else
+  echo "DO_LIBC_INCLUDES :="
+fi'
+
+configure_generate_configh='echo "#define ${package_macro_name}_NSSSD_PATH \"$nsssdpath\""'

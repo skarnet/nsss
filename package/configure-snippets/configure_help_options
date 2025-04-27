@@ -1,0 +1,3 @@
+  --with-nsssd-socket=PATH      assume the nsssd socket is at PATH [/run/service/nsssd/s]
+  --enable-libc-includes        overwrite {pwd,grp,shadow}.h in includedir [disabled]
+

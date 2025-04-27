@@ -1,0 +1,5 @@
+if $libcincludes ; then
+  echo "DO_LIBC_INCLUDES := 1"
+else
+  echo "DO_LIBC_INCLUDES :="
+fi

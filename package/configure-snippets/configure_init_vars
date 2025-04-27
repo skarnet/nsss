@@ -1,0 +1,2 @@
+nsssdpath=/run/service/nsssd/s
+libcincludes=false
