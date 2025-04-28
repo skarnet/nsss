@@ -38,7 +38,7 @@ In other words, it's crap. Here's why.
  <em>nsswitch</em> works by reading a configuration file,
 <tt>/etc/nsswitch.conf</tt>, and depending on what it reads in this
 file, loading one or more shared libraries, via
-<a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/dlopen.html">dlopen()</a>,
+<a href="http://pubs.opengroup.org/onlinepubs/9799919799/functions/dlopen.html">dlopen()</a>,
 into the application. These shared libraries, for instance
 <tt>/lib/libnss_files-2.19.so</tt>, are provided by the NSS implementation
 (glibc on Linux). This mechanism has drawbacks.
