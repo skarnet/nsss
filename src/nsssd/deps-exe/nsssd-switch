@@ -1,5 +1,6 @@
 ${LIBNSSSD}
 ${LIBNSSS}
 -lskarnet
+${PTHREAD_LIB}
 ${SOCKET_LIB}
 ${SYSCLOCK_LIB}

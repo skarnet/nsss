@@ -1,3 +1,4 @@
 ${LIBNSSSD}
 ${LIBNSSS}
 -lskarnet
+${PTHREAD_LIB}
