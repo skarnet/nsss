@@ -1,5 +1,12 @@
 Changelog for nsss.
 
+In 0.2.1.1
+----------
+
+ - Bugfixes.
+ - MacOS .dylib support.
+
+
 In 0.2.1.0
 ----------
 
