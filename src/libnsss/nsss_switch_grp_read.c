@@ -43,13 +43,13 @@ int nsss_switch_grp_read (buffer *b, struct group *gr, stralloc *sa, genalloc *g
   p = sa->s + sa->len ; len = total ;
   q = genalloc_s(char *, ga) + genalloc_len(char *, ga) ;
   grtmp.gr_mem = q ;
-  grtmp.gr_name = p ; x = strnlen(p, len) + 1 ; p += x ; len -= x ;
+  grtmp.gr_name = p ; x = strnlen(p, len-1) + 1 ; p += x ; len -= x ;
   if (!len) return (errno = EPROTO, 0) ;
-  grtmp.gr_passwd = p ; x = strnlen(p, len) + 1 ; p += x ; len -= x ;
+  grtmp.gr_passwd = p ; x = strnlen(p, len-1) + 1 ; p += x ; len -= x ;
   for (uint32_t i = 0 ; i < n ; i++)
   {
     if (!len) return (errno = EPROTO, 0) ;
-    q[i] = p ; x = strnlen(p, len) + 1 ; p += x ; len -= x ;
+    q[i] = p ; x = strnlen(p, len-1) + 1 ; p += x ; len -= x ;
   }
   if (len) return (errno = EPROTO, 0) ;
   q[n] = 0 ;

@@ -47,9 +47,9 @@ int nsss_switch_shadow_read (buffer *b, struct spwd *sp, stralloc *sa, tain cons
   if (!buffer_timed_get(b, sa->s + sa->len, total, deadline, stamp)) return 0 ;
   if (sa->s[sa->len + total - 1]) return (errno = EPROTO, 0) ;
   p = sa->s + sa->len ; len = total ;
-  sptmp.sp_namp = p ; x = strnlen(p, len) + 1 ; p += x ; len -= x ;
+  sptmp.sp_namp = p ; x = strnlen(p, len-1) + 1 ; p += x ; len -= x ;
   if (!len) return (errno = EPROTO, 0) ;
-  sptmp.sp_pwdp = p ; x = strnlen(p, len) + 1 ; p += x ; len -= x ;
+  sptmp.sp_pwdp = p ; x = strnlen(p, len-1) + 1 ; p += x ; len -= x ;
   if (len) return (errno = EPROTO, 0) ;
   sa->len += total ;
   *sp = sptmp ;
